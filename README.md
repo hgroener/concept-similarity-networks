@@ -10,8 +10,23 @@
 - graphische Darstellung des Netzwerks: Kanten werden nur zwischen Konzeptknoten angezeigt, deren semantische Ähnlichkeit den Schwellenwert übersteigt. 
 
 ## Vergleich von Ählichkeitsnetzwerken
-- quantitativ
-  - Ähnlichkeit zwischen zwei Netzwerken in numerischem Wert: 
-    - für jede Kante Ähnlichkeit auf einen Wert zwischen 0 und 1 normalisieren 
-    - Ähnlichkeit zweier Netzwerke = Differenz zwischen den normalisierten Ähnlichkeitswerten jeder Kante
-  -
+- Ähnlichkeit zwischen zwei Netzwerken (mindestens eins davon ungewichtet):
+  - Definition eines Schwellenwertes für gewichtete Netzwerke 
+  - Anteil der Kanten, die in beiden Netzwerken vorkommen wird prozentual berechnet
+- Ähnlichkeit zwischen zwei gewichteten Netzwerken: 
+  - für jede Kante Ähnlichkeit auf einen Wert zwischen 0 und 1 normalisieren 
+  - Differenz zwischen den normalisierten Ähnlichkeitswerten jeder Kante berechnen
+  - "average degree" = Summe der Kanten an jedem Knoten durch die Zahl der Knoten -> Vergleich der Dichte der Netzwerke
+- Vergleich konzeptueller Felder: 
+  - Anzahl und Größe von Feldern
+  - Ähnlichkeit der Felder: 
+    - für jedes Feld in einem Netzwerk das ähnlichste in einem anderen Netzwerk suchen 
+    - Überlappung (in Konzepten) zwischen den beiden Feldern berechnen
+    - Unterschiede, Gemeinsamkeiten, Art der Ähnlichkeit für einzelne Felder beschreiben 
+    
+## Fragen
+- Umgang mit pynorare, pyconcepticon, pyclics
+- wie viele und welche Ähnlichkeitsnetzwerke sollten verglichen werden? Nur gewichtete (pyclics, word2vec, evtl. Netzwerk aus Assoziationsstudien in NoRaRe) oder auch ungewichtete (Wordnet, Concepticon)
+- Reicht pynorare für das Konzeptmapping, oder sollte für das Mapping bei Kolexifikationen ein Klassifikator eingesetzt werden?
+
+
