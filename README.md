@@ -1,4 +1,4 @@
-# BA_concept_similarity
+# concept similarity networks
 
 ## Schritte zur Erstellung des Word2Vec-Netzwerks
 - Textkorpus zum Trainieren finden (etwa Brown University Standard Corpus of Present-Day American English: https://www.kaggle.com/nltkdata/brown-corpus?select=cats.csv)
