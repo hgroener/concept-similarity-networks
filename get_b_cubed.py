@@ -1,14 +1,16 @@
 import igraph
 
-clics_graph = igraph.read("../output/clics_subgraph.gml")
-w2v_graph = igraph.read("../output/word2vec_graph.gml")
+clics_graph = "output/clics_subgraph.gml"
+w2v_graph = "output/word2vec_graph.gml"
 
 def get_community_subgraphs(graph):
     communities = graph.community_infomap()
     community_subgraphs = communities.subgraphs()
     return(community_subgraphs)
 
-def get_b_cubed(graph1, graph2):
+def get_b_cubed(graph_path1, graph_path2):
+    graph1 = igraph.read(graph_path1)
+    graph2 = igraph.read(graph_path2)
     subgraphs1 = get_community_subgraphs(graph1)
     subgraphs2 = get_community_subgraphs(graph2)
 
@@ -29,10 +31,8 @@ def get_b_cubed(graph1, graph2):
     recall = sum(recall_scores)/len(recall_scores)
     f_score = (2 * precision * recall)/(precision + recall)
 
-    return(precision, recall, f_score)
+    return(print("B-Cubed scores:\nprecision: " + str(precision) + "\nrecall: " + str(recall) + "\nF-score: " + str(f_score)))
 
 if __name__=="__main__":
-    precision, recall, f_score = get_b_cubed(w2v_graph, clics_graph)
-    print("precision: " + str(precision))
-    print("recall: " + str(recall))
-    print("F-score: " + str(f_score))
+    get_b_cubed(w2v_graph, clics_graph)
+

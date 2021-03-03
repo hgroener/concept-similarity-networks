@@ -8,6 +8,12 @@ import igraph
 
 # In[4]:
 
+shared_concepts_path = "output/shared_concepts.tsv"
+w2v_model = "output/word2vec.model"
+edges = "output/edges.txt"
+threshold = 0.97
+output_path = "output/word2vec_graph.gml"
+
 
 def read_mappings(table):
     with open(table) as fd:
@@ -22,12 +28,12 @@ def read_mappings(table):
     return mapped_IDs
 
 
-def create_edges(model, vocab, threshold, filename):
-    brown_model = gensim.models.Word2Vec.load(model)
+def create_edges(model_file, vocab, threshold, filename):
+    model = gensim.models.Word2Vec.load(model_file)
     edges = []
     for ID, other_ID in tqdm(itertools.combinations(vocab, 2)):
-        cosine_similarity = 1 - scipy.spatial.distance.cosine(get_mean_vector(ID, vocab, brown_model),
-                                                              get_mean_vector(other_ID, vocab, brown_model))
+        cosine_similarity = 1 - scipy.spatial.distance.cosine(get_mean_vector(ID, vocab, model),
+                                                              get_mean_vector(other_ID, vocab, model))
         if cosine_similarity > threshold:
             edges.append((ID, other_ID, cosine_similarity))
     print("edges per node:" + str(len(edges) / len(vocab)))
@@ -56,8 +62,12 @@ def create_network(vocab, weighted_edges):
     return word2vec_graph
 
 
-if __name__ == "__main__":
-    mapped_IDs = read_mappings("output/shared_concepts.tsv")
-    edges = create_edges("output/brown_model.model", mapped_IDs, 0.97, "output/edges.txt")
-    word2vec_network = create_network(mapped_IDs, edges)
-    word2vec_network.write_gml("output/word2vec_graph.gml")
+def get_gml(shared_concepts, model, edges_path, threshold_num, output_file):
+    mapped_IDs = read_mappings(shared_concepts)
+    edges_list = create_edges(model, mapped_IDs, threshold_num, edges_path)
+    word2vec_network = create_network(mapped_IDs, edges_list)
+    word2vec_network.write_gml(output_file)
+    return(print("graph saved as " + output_file))
+
+if __name__=="__main__":
+    get_gml(shared_concepts_path, w2v_model, edges, threshold, output_path)
