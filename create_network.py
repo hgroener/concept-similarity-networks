@@ -36,7 +36,7 @@ def create_edges(model_file, vocab, threshold, filename):
                                                               get_mean_vector(other_ID, vocab, model))
         if cosine_similarity > threshold:
             edges.append((ID, other_ID, cosine_similarity))
-    print("edges per node:" + str(len(edges) / len(vocab)))
+    print("edges per node: " + str(len(edges) / len(vocab)))
     with open(filename, 'w') as f:
         for edge in edges:
             f.write("%s\n" % str(edge))
