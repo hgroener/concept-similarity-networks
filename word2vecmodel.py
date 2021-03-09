@@ -7,17 +7,18 @@
 import csv
 import re
 import gensim 
-import spacy
 from gensim.models import Word2Vec
 import nltk 
 from nltk.stem import WordNetLemmatizer 
 nltk.download('averaged_perceptron_tagger') 
 from nltk.corpus import wordnet 
-from nltk.corpus import reuters
 
 
 # In[7]:
 
+corpus = 'D:/Brown/brown.csv'
+model_path = 'output/word2vec.model'
+vocab_path = 'output/model_vocab.txt'
 
 def pos_tagger(nltk_tag): 
     if nltk_tag.startswith('J'): 
@@ -69,24 +70,26 @@ def preproc(file):
 # In[17]:
 
 
-if __name__ == '__main__':
-    
-    with open('D:/Brown/brown.csv', newline='') as f:
+def build_model(corpus_path, model_output_path, vocab_output_path):
+    with open(corpus_path, newline='') as f:
         reader = csv.reader(f)
         data = list(reader)
     
     preproc_data = preproc(data)
-   
-    
-    brown_model = gensim.models.Word2Vec(preproc_data, min_count = 1, window = 5)
-    brown_vocab = list(brown_model.wv.vocab)
-    print("number of word types: " + str(len(brown_vocab)))
-    
-    with open('model_vocab.txt', 'w') as f:
-        for item in brown_vocab:
-            f.write("%s\n" % item)
-    print("word types saved to model_vocab.txt")
 
+    model = gensim.models.Word2Vec(preproc_data, min_count = 1, window = 5)
+    model.save(model_output_path)
+
+    vocab = list(model.wv.vocab)
+    print("number of word types: " + str(len(vocab)))
+    
+    with open(vocab_output_path, 'w') as f:
+        for item in vocab:
+            f.write("%s\n" % item)
+    return(print("word types saved to " + vocab_output_path))
+
+if __name__=="__main__":
+    build_model(corpus, model_path, vocab_path)
 
 # In[ ]:
 
