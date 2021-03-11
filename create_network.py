@@ -31,12 +31,12 @@ def read_mappings(table):
 def create_edges(model_file, vocab, threshold, filename):
     model = gensim.models.Word2Vec.load(model_file)
     edges = []
-    for ID, other_ID in tqdm(itertools.combinations(vocab, 2)):
+    for ID, other_ID in itertools.combinations(vocab, 2):
         cosine_similarity = 1 - scipy.spatial.distance.cosine(get_mean_vector(ID, vocab, model),
                                                               get_mean_vector(other_ID, vocab, model))
         if cosine_similarity > threshold:
             edges.append((ID, other_ID, cosine_similarity))
-    print("edges per node: " + str(len(edges) / len(vocab)))
+    #print("edges per node: " + str(len(edges) / len(vocab)))
     with open(filename, 'w') as f:
         for edge in edges:
             f.write("%s\n" % str(edge))
