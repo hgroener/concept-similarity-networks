@@ -3,6 +3,7 @@ import igraph
 clics_graph = "output/network-3-families.gml"
 word2vec_graph = "output/word2vec_graph_google.gml"
 output = "output/clics_subgraph_google.gml"
+stats_output = "output/clics_stats.txt"
 
 def get_subgraph(w2v_graph_path, clics_graph_path, output_path):
     w2v_graph = igraph.read(w2v_graph_path)

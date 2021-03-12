@@ -51,6 +51,7 @@ def get_mean_vector(concepticon_ID, vocab, model):
 def create_network(vocab, weighted_edges):
     word2vec_graph = igraph.Graph()
     word2vec_graph.add_vertices([key for key in vocab])
+    word2vec_graph.vs["ID"] = [key for key in vocab]
     word2vec_graph.vs["word types"] = [", ".join(vocab[key]) for key in vocab]
     no_w = []
     w = []
