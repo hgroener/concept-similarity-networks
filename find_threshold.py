@@ -31,19 +31,25 @@ def find_threshold(model_type, model_path, edges_path, shared_concepts_path, CLI
     closest_com_size_dif = clics_subgraph_size
     highest_spearman_c = -1
     for (n,dic) in enumerate(results):
-        com_num_dif = abs(dic["communities"] - clics_subgraph_num)
+        com_num = dic["communities"]
+        com_num_dif = abs(com_num - clics_subgraph_num)
         if com_num_dif < closest_com_num_dif:
+            closest_com_num = com_num
             closest_com_num_dif = com_num_dif
             best_t_by_com_num = threshold_list[n]
-        com_size_dif = abs(dic["average community size"] - clics_subgraph_size)
+        com_size = dic["average community size"]
+        com_size_dif = abs(com_size - clics_subgraph_size)
         if com_size_dif < closest_com_size_dif:
+            closest_com_size = com_size
             closest_com_size_dif = com_size_dif
             best_t_by_com_size = threshold_list[n]
         if dic["spearman coefficient"] > highest_spearman_c:
             highest_spearman_c = dic["spearman coefficient"]
             best_t_by_spearman_c = threshold_list[n]
 
-    return(print("\nbest threshold:\nby number of communities: " + str(best_t_by_com_num) + "\nby average community size: " + str(best_t_by_com_size) + "\nby spearman coefficient: " + str(best_t_by_spearman_c)))
+    return(print("\nbest threshold:\nby number of communities: " + str(best_t_by_com_num) + " with " +  str(closest_com_num) +
+                 "\nby average community size: " + str(best_t_by_com_size) + " with " + str(closest_com_size) +
+                 "\nby spearman coefficient: " + str(best_t_by_spearman_c) + " with " + str(highest_spearman_c)))
 
 if __name__=="__main__":
     find_threshold(model_type, model_path, edges_path, shared_concepts_path, subgraph_path, result_path_b2, threshold)
