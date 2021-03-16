@@ -17,7 +17,8 @@ clics_subgraph = igraph.read(subgraph_path)
 clics_subgraph_num = len(clics_subgraph.community_infomap())
 clics_subgraph_size = len(clics_subgraph.vs) / clics_subgraph_num
 
-def find_threshold(model_type, model_path, edges_path, shared_concepts_path, CLICS_subgraph_path, result_path_b2, threshold_list):
+def find_threshold(model_type, model_path, edges_path, shared_concepts_path, CLICS_subgraph_path, result_path_b2,
+                   threshold_list):
     Path("output/w2v_networks").mkdir(parents=True, exist_ok=True)
     results = []
     for t in tqdm(threshold_list):
@@ -25,31 +26,27 @@ def find_threshold(model_type, model_path, edges_path, shared_concepts_path, CLI
         w2v_gml_file_path = Path(w2v_gml_path)
         if not w2v_gml_file_path.is_file():
             create_network.get_gml(shared_concepts_path, model_path, edges_path, t, w2v_gml_path)
-        result_dic = get_b_cubed.get_b_cubed(w2v_gml_path, CLICS_subgraph_path, model_type, result_path_b2, t, return_scores=True)
+        result_dic = get_b_cubed.get_b_cubed(w2v_gml_path, CLICS_subgraph_path, model_type, result_path_b2, t,
+                                             return_scores=True)
+        result_dic["threshold"] = t
         results.append(result_dic)
-    closest_com_num_dif = clics_subgraph_num
-    closest_com_size_dif = clics_subgraph_size
-    highest_spearman_c = -1
-    for (n,dic) in enumerate(results):
-        com_num = dic["communities"]
-        com_num_dif = abs(com_num - clics_subgraph_num)
-        if com_num_dif < closest_com_num_dif:
-            closest_com_num = com_num
-            closest_com_num_dif = com_num_dif
-            best_t_by_com_num = threshold_list[n]
-        com_size = dic["average community size"]
-        com_size_dif = abs(com_size - clics_subgraph_size)
-        if com_size_dif < closest_com_size_dif:
-            closest_com_size = com_size
-            closest_com_size_dif = com_size_dif
-            best_t_by_com_size = threshold_list[n]
-        if dic["spearman coefficient"] > highest_spearman_c:
-            highest_spearman_c = dic["spearman coefficient"]
-            best_t_by_spearman_c = threshold_list[n]
 
-    return(print("\nbest threshold:\nby number of communities: " + str(best_t_by_com_num) + " with " +  str(closest_com_num) +
-                 "\nby average community size: " + str(best_t_by_com_size) + " with " + str(closest_com_size) +
-                 "\nby spearman coefficient: " + str(best_t_by_spearman_c) + " with " + str(highest_spearman_c)))
+    num_difs = sorted([(dic["threshold"], dic["communities"] - clics_subgraph_num) for dic in results], reverse = True, key=lambda tup:tup[1])
+    size_difs = sorted([(dic["threshold"], dic["average community size"] - clics_subgraph_size) for dic in results], reverse = True,  key=lambda tup: tup[1])
+    spearman_scores = sorted([(dic["threshold"], dic["spearman coefficient"]) for dic in results], reverse = True, key=lambda tup: tup[1])
+    average_ranks = []
+    for t in threshold_list:
+        num_difs_rank = [a for (a,b) in num_difs].index(t)
+        size_difs_rank = [a for (a,b) in size_difs].index(t)
+        spearman_scores_rank = [a for (a,b) in spearman_scores].index(t)
+        average_rank = (num_difs_rank + size_difs_rank + spearman_scores_rank)/3
+        average_ranks.append((t, average_rank))
+    ranking = sorted(average_ranks, key=lambda tup:tup[1])
+
+
+    return(ranking)
 
 if __name__=="__main__":
-    find_threshold(model_type, model_path, edges_path, shared_concepts_path, subgraph_path, result_path_b2, threshold)
+    ranking = find_threshold(model_type, model_path, edges_path, shared_concepts_path, subgraph_path, result_path_b2, threshold)
+    best_t = ranking[0][0]
+    print("Highest ranking threshold: " + str(best_t))
