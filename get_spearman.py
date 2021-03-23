@@ -16,8 +16,8 @@ def get_sorted_degrees(graph_path):
 def get_spearman(graph_path1, graph_path2):
     degrees1 = get_sorted_degrees(graph_path1)
     degrees2 = get_sorted_degrees(graph_path2)
-    spearman_coefficient = stats.spearmanr(degrees1, degrees2)
-    return(spearman_coefficient)
+    spearman = stats.spearmanr(degrees1, degrees2)
+    return({"spearman correlation": spearman[0], "p-value": spearman[1]})
 
 if __name__ == "__main__":
-    get_spearman(w2v_path, CLICS_path)
+    print(get_spearman(w2v_path, CLICS_path))

@@ -4,18 +4,18 @@ import get_b_cubed
 w2v_path = "output/word2vec_graph.gml"
 CLICS_path = "output/clics_subgraph.gml"
 
-def get_assortativity(graph_path1, graph_path2):
-    graph1 = igraph.read(graph_path1)
-    graph2 = igraph.read(graph_path2)
-    subgraphs2 = get_b_cubed.get_community_subgraphs(graph2)
+def get_assortativity(test_path, gold_path):
+    test_graph = igraph.read(test_path)
+    gold_graph = igraph.read(gold_path)
+    gold_subgraphs = get_b_cubed.get_community_subgraphs(gold_graph)
 
-    for node in graph1.vs:
-        for n, subgraph in enumerate(subgraphs2):
+    for node in test_graph.vs:
+        for n, subgraph in enumerate(gold_subgraphs):
             IDs = [v["ID"] for v in subgraph.vs]
             if node["ID"] in IDs:
                 node["corresponding community"] = n
                 break
-    a = graph1.assortativity_nominal("corresponding community", directed=False)
+    a = test_graph.assortativity_nominal("corresponding community", directed=False)
     return(a)
 
 if __name__ == "__main__":

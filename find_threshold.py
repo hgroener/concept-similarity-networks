@@ -1,5 +1,5 @@
 import create_network
-import get_b_cubed
+import evaluation
 
 import igraph
 from pathlib import Path
@@ -26,14 +26,12 @@ def find_threshold(model_type, model_path, edges_path, shared_concepts_path, CLI
         w2v_gml_file_path = Path(w2v_gml_path)
         if not w2v_gml_file_path.is_file():
             create_network.get_gml(shared_concepts_path, model_path, edges_path, t, w2v_gml_path)
-        result_dic = get_b_cubed.get_b_cubed(w2v_gml_path, CLICS_subgraph_path, model_type, result_path_b2, t,
-                                             return_scores=True)
-        result_dic["threshold"] = t
+        result_dic = evaluation.get_result_dic(w2v_gml_path, CLICS_subgraph_path, model_type, t)
         results.append(result_dic)
 
-    num_difs = sorted([(dic["threshold"], dic["communities"] - clics_subgraph_num) for dic in results], reverse = True, key=lambda tup:tup[1])
+    num_difs = sorted([(dic["threshold"], dic["number of communities"] - clics_subgraph_num) for dic in results], reverse = True, key=lambda tup:tup[1])
     size_difs = sorted([(dic["threshold"], dic["average community size"] - clics_subgraph_size) for dic in results], reverse = True,  key=lambda tup: tup[1])
-    spearman_scores = sorted([(dic["threshold"], dic["spearman coefficient"]) for dic in results], reverse = True, key=lambda tup: tup[1])
+    spearman_scores = sorted([(dic["threshold"], dic["spearman coefficient"]["spearman correlation"]) for dic in results], reverse = True, key=lambda tup: tup[1])
     average_ranks = []
     for t in threshold_list:
         num_difs_rank = [a for (a,b) in num_difs].index(t)
