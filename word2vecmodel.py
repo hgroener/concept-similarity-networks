@@ -10,13 +10,14 @@ import gensim
 from gensim.models import Word2Vec
 import nltk 
 from nltk.stem import WordNetLemmatizer 
-nltk.download('averaged_perceptron_tagger') 
+nltk.download('averaged_perceptron_tagger')
+nltk.download('wordnet')
 from nltk.corpus import wordnet 
 
 
 # In[7]:
 
-corpus = 'D:/Brown/brown.csv'
+corpus = 'Brown/brown.csv'
 model_path = 'output/word2vec.model'
 vocab_path = 'output/model_vocab.txt'
 

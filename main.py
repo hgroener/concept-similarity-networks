@@ -5,14 +5,15 @@ import generate_subgraph
 import pairwise_evaluation
 import get_b_cubed
 import get_assortativity
+import get_adj_rand
 
-corpus_path = 'D:/Brown/brown.csv'
+corpus_path = 'Brown/brown.csv'
 model_type = 'Brown Model'
 model_path = 'output/word2vec.model'
 vocab_path = 'output/model_vocab.txt'
 shared_concepts_path = 'output/shared_concepts.tsv'
 edges_path = 'output/edges.txt'
-threshold = 0.97
+threshold = 0.98
 w2v_gml_path = 'output/word2vec_graph.gml'
 clics_gml_path = 'output/network-3-families.gml'
 subgraph_output_path = 'output/clics_subgraph.gml'
@@ -25,5 +26,6 @@ if __name__=="__main__":
     create_network.get_gml(shared_concepts_path, model_path, edges_path, threshold, w2v_gml_path)
     generate_subgraph.get_subgraph(w2v_gml_path, clics_gml_path, subgraph_output_path)
     pairwise_evaluation.pairwise_evaluation(subgraph_output_path, w2v_gml_path, model_type, result_path_pe)
-    get_b_cubed.get_b_cubed(w2v_gml_path, subgraph_output_path, model_type, result_path_b2)
+    get_b_cubed.get_b_cubed(w2v_gml_path, subgraph_output_path, model_type, result_path_b2, threshold)
     get_assortativity.get_assortativity(w2v_gml_path, subgraph_output_path)
+    print(get_adj_rand.get_adj_rand(w2v_gml_path, subgraph_output_path))

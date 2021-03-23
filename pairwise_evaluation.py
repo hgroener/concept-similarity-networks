@@ -19,13 +19,16 @@ def evaluate(clics_graph_path, w2v_graph_path):
 
     precision = len(tp)/len(word2vec_ID_pairs)
     recall = len(tp)/len(tp+fn)
-    f_score = (2 * precision * recall)/(precision + recall)
+    if precision + recall > 0:
+        f_score = (2 * precision * recall)/(precision + recall)
+    else:
+        f_score = 0
     #print("pairwise evalulation scores:\n" + "precision: " + str(precision) + "\nrecall: " + str(recall) + "\nf-score: " + str(f_score))
     return({"precision": precision, "recall": recall, "F-Score": f_score})
 
 def pairwise_evaluation(clics_graph, w2v_graph, model_type, output_file):
     result_dic = evaluate(clics_graph, w2v_graph)
-    now = now = datetime.now()
+    now = datetime.now()
     with open(output_file, "a+") as f:
         f.write("time: " + str(now) + "\nmodel type: " + model_type + "\n")
         for key in result_dic:
