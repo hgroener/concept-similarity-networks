@@ -2,7 +2,6 @@ import gensim
 import csv
 import itertools
 import scipy
-from tqdm import tqdm
 import igraph
 
 
