@@ -41,8 +41,9 @@ def build_network(cids, edges, output_file):
     EAT_graph.add_edges([(ID, other_ID) for (ID, other_ID, weight) in edges])
     EAT_graph.es['weight'] = [weight for ID, other_ID, weight in edges]
     EAT_graph.write_gml(output_file)
-    return(print("EAT network successfully built and saved to " + output_file))
+    print("EAT network successfully built and saved to " + output_file)
+    return(EAT_graph)
 
 if __name__=="__main__":
     cids, edges = convert_EAT(EAT)
-    build_network(cids, edges, output_file)
+    EAT_graph = build_network(cids, edges, output_file)

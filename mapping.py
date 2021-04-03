@@ -33,9 +33,9 @@ def compare_concepts(mapped, conceptlist_data):
     return(shared_concepts)
 
 def get_shared_concepts(vocab, output_tsv_path):
-    clics_data = get_concept_data('Rzymski-2020-1624')
-    mapped_concepts = map_concepts(vocab)
-    shared_concepts = compare_concepts(mapped_concepts, clics_data)
+    #clics_data = get_concept_data('Rzymski-2020-1624')
+    shared_concepts = map_concepts(vocab)
+    #shared_concepts = compare_concepts(mapped_concepts, clics_data)
     with open(output_tsv_path, 'w') as f:
         f.write('\t'.join(
             [
