@@ -3,7 +3,7 @@ from tqdm import tqdm
 from pysen.glosses import to_concepticon
 import igraph
 
-norare = NoRaRe("NoRaRe/norare-data")
+norare = NoRaRe("input/NoRaRe/norare-data")
 EAT = norare.datasets["Kiss-1973-EAT"]
 output_file = 'output/EAT_graph.gml'
 
@@ -14,7 +14,7 @@ def convert_EAT(EAT):
     for cid, concept in tqdm(EAT.concepts.items()):
         concept_list.append(concept)
         cids.append(str(cid))
-        gloss_dict[concept["concepticon_gloss"]] =  cid
+        gloss_dict[concept["concepticon_gloss"]] = cid
 
 
     edges = []
@@ -34,16 +34,15 @@ def convert_EAT(EAT):
                     edges.append((str(concept["concepticon_id"]), linked_ID, int(weight)))
     return((cids, edges))
 
-def build_network(cids, edges, output_file):
+def build_network(EAT, output_file):
+    cids, edges = convert_EAT(EAT)
     EAT_graph = igraph.Graph()
     EAT_graph.add_vertices(cids)
     EAT_graph.vs["ID"] = cids
     EAT_graph.add_edges([(ID, other_ID) for (ID, other_ID, weight) in edges])
     EAT_graph.es['weight'] = [weight for ID, other_ID, weight in edges]
     EAT_graph.write_gml(output_file)
-    print("EAT network successfully built and saved to " + output_file)
-    return(EAT_graph)
+    return(print("EAT network successfully built and saved to " + output_file))
 
 if __name__=="__main__":
-    cids, edges = convert_EAT(EAT)
-    EAT_graph = build_network(cids, edges, output_file)
+    EAT_graph = build_network(EAT, output_file)

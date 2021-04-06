@@ -3,9 +3,9 @@ from pyconcepticon import Concepticon
 import igraph
 con = Concepticon()
 
-clics_graph = igraph.read("output/network-3-families.gml")
-tsv_path = 'output/shared_concepts.tsv'
-vocab_path = 'output/model_vocab.txt'
+clics_graph = igraph.read("input/CLICS/network-3-families.gml")
+tsv_path = 'output/w2v/mapped_concepts.tsv'
+vocab_path = 'output/w2v/model_vocab.txt'
 
 def get_concept_data(conceptlist):
     clics_data = []

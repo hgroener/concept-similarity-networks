@@ -6,8 +6,7 @@
 
 import csv
 import re
-import gensim 
-from gensim.models import Word2Vec
+import gensim
 import nltk 
 from nltk.stem import WordNetLemmatizer 
 nltk.download('averaged_perceptron_tagger')
@@ -17,9 +16,9 @@ from nltk.corpus import wordnet
 
 # In[7]:
 
-corpus = 'Brown/brown.csv'
-model_path = 'output/word2vec.model'
-vocab_path = 'output/model_vocab.txt'
+corpus = 'input/Brown/brown.csv'
+model_path = 'output/w2v/w2v.model'
+vocab_path = 'output/w2v/model_vocab.txt'
 
 def pos_tagger(nltk_tag): 
     if nltk_tag.startswith('J'): 
