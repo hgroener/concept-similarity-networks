@@ -2,6 +2,7 @@ import word2vecmodel
 import mapping
 import create_network
 import create_EAT_network
+import create_sense_network
 import generate_subgraph
 import implement_threshold
 import evaluation
@@ -14,6 +15,7 @@ import pandas as pd
 Path("output/w2v").mkdir(parents=True, exist_ok=True)
 Path("output/CLICS").mkdir(parents=True, exist_ok=True)
 Path("output/EAT").mkdir(parents=True, exist_ok=True)
+Path("output/sense").mkdir(parents=True, exist_ok=True)
 
 #w2v
 corpus_path = 'input/Brown/brown.csv'
@@ -22,9 +24,10 @@ vocab_path = 'output/w2v/model_vocab.txt'
 mapped_concepts_path = 'output/w2v/mapped_concepts.tsv'
 edges_path = 'output/w2v/edges.txt'
 w2v_gml_path = 'output/w2v/w2v.gml'
-result_path = "output/w2v/evaluation.csv"
+result_path = "output/w2v/evaluation.txt"
 w2v_subgraph_path_clics = 'output/w2v/w2v_subgraph_clics.gml'
 w2v_subgraph_path_EAT = 'output/w2v/w2v_subgraph_EAT.gml'
+w2v_subgraph_path_sense = 'output/w2v/w2v_subgraph_sense.gml'
 
 overwrite_model = False
 overwrite_w2v = False
@@ -32,18 +35,25 @@ overwrite_w2v = False
 result_dics = []
 
 #CLICS
-compare_clics = True
+compare_clics = False
 clics_gml_path = 'input/CLICS/network-3-families.gml'
 clics_subgraph_path = 'output/CLICS/clics_subgraph.gml'
 threshold_clics = 0.96
 
 #EAT
-compare_EAT = True
+compare_EAT = False
 norare = NoRaRe("input/NoRaRe/norare-data")
 EAT = norare.datasets["Kiss-1973-EAT"]
 EAT_path = 'output/EAT/EAT_graph.gml'
 EAT_subgraph_path = 'output/EAT/EAT_subgraph_w2v.gml'
 threshold_EAT = 0.97
+
+#Sense
+compare_sense=True
+sense = norare.datasets["Starostin-2000-Sense"]
+sense_path = "output/sense/sense.gml"
+sense_subgraph_path = "output/sense/sense_subgraph.gml"
+threshold_sense = 0.93
 
 
 def get_w2v(corpus_path, model_path, vocab_path, mapped_concepts_path, edges_path, gml_path, overwrite_model = True, overwrite_gml=True):
@@ -100,6 +110,13 @@ if __name__=="__main__":
         compare_networks(w2v_gml_path, EAT_path, w2v_subgraph_path_EAT, EAT_subgraph_path, "EAT", threshold_EAT, result_path)
         #result_dics.append(result_dic_EAT)
 
+    #compare to sense
+    if compare_sense == True:
+        create_sense_network.build_network(sense, sense_path)
+        compare_networks(w2v_gml_path, sense_path, w2v_subgraph_path_sense, sense_subgraph_path, "Sense", threshold_sense, result_path)
+
     #create result csv
     #create_csv(result_dics, result_path)
+
+
 

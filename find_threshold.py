@@ -10,9 +10,12 @@ clics_path = 'input/CLICS/network-3-families.gml'
 clics_subgraph_path = 'output/CLICS/clics_subgraph.gml'
 EAT_path = 'output/EAT/EAT_graph.gml'
 EAT_subgraph_path = 'output/EAT/EAT_subgraph.gml'
+sense_path = 'output/sense/sense.gml'
+sense_subgraph_path = 'output/sense/sense_subgraph.gml'
 threshold = [0.90, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99]
 t_output_folder_clics = "output/w2v/t_networks_clics"
 t_output_folder_EAT = "output/w2v/t_networks_EAT"
+t_output_folder_sense= "output/w2v/t_networks_sense"
 
 def get_graph_stats(graph):
     com_num = len(graph.community_infomap())
@@ -51,6 +54,7 @@ def find_threshold(model_type, w2v_path, comparison_graph_path, comparison_subgr
 
 if __name__=="__main__":
     #ranking = find_threshold("CLICS", w2v_path, clics_path, clics_subgraph_path, threshold, t_output_folder_clics)
-    ranking = find_threshold("EAT", w2v_path, EAT_path, EAT_subgraph_path, threshold, t_output_folder_EAT)
+    #ranking = find_threshold("EAT", w2v_path, EAT_path, EAT_subgraph_path, threshold, t_output_folder_EAT)
+    ranking = find_threshold("Sense", w2v_path, sense_path, sense_subgraph_path, threshold, t_output_folder_sense)
     best_t = ranking[0][0]
     print("Highest ranking threshold: " + str(best_t))
