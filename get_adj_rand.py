@@ -1,7 +1,7 @@
 import igraph
 
-w2v_path = 'output/word2vec_graph.gml'
-CLICS_path = 'output/clics_subgraph.gml'
+w2v_path = 'output/w2v/w2v_subgraph_clics.gml'
+CLICS_path = 'output/CLICS/clics_subgraph.gml'
 
 def get_adj_rand(test_path, gold_path):
     test_graph = igraph.read(test_path)

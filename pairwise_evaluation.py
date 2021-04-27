@@ -21,7 +21,7 @@ def evaluate(test_path, gold_path):
     else:
         f_score = 0
 
-    return({"precision": precision, "recall": recall, "F-Score": f_score})
+    return({"precision": precision, "recall": recall, "F-score": f_score})
 
 
 if __name__=="__main__":

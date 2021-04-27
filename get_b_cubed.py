@@ -31,7 +31,7 @@ def get_b_cubed(test_path, gold_path):
     result_dic = {}
     result_dic["precision"] = sum(precision_scores)/len(precision_scores)
     result_dic["recall"] = sum(recall_scores)/len(recall_scores)
-    result_dic["F-Score"] = (2 * result_dic["precision"] * result_dic["recall"])/(result_dic["precision"] + result_dic["recall"])
+    result_dic["F-score"] = (2 * result_dic["precision"] * result_dic["recall"])/(result_dic["precision"] + result_dic["recall"])
 
     return((result_dic))
 
