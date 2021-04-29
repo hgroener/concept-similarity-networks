@@ -1,0 +1,4 @@
+,dataset,precision,recall,F-score
+0,CLICS,0.4357,0.4625,0.4487
+1,EAT,0.5642,0.2677,0.3631
+2,Sense,0.2704,0.3789,0.3156
