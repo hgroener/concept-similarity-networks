@@ -16,7 +16,7 @@ Path("output/w2v").mkdir(parents=True, exist_ok=True)
 Path("output/CLICS").mkdir(parents=True, exist_ok=True)
 Path("output/EAT").mkdir(parents=True, exist_ok=True)
 Path("output/sense").mkdir(parents=True, exist_ok=True)
-Path("output/evaluation").mkdir(parents=True, exist_ok=True)
+Path("evaluation").mkdir(parents=True, exist_ok=True)
 
 #w2v
 corpus_path = 'input/Brown/brown.csv'
@@ -57,10 +57,10 @@ threshold_sense = 0.93
 
 #evaluation
 result_dics = []
-b_cubed_csv_path = 'output/evaluation/b_cubed.csv'
-pairwise_csv_path = 'output/evaluation/pairwise.csv'
-assortativity_csv_path = 'output/evaluation/assortativity.csv'
-adj_rand_csv_path = 'output/evaluation/adj_rand.csv'
+b_cubed_csv_path = 'evaluation/b_cubed.csv'
+pairwise_csv_path = 'evaluation/pairwise.csv'
+assortativity_csv_path = 'evaluation/assortativity.csv'
+adj_rand_csv_path = 'evaluation/adj_rand.csv'
 
 def get_w2v(corpus_path, model_path, vocab_path, mapped_concepts_path, edges_path, gml_path, overwrite_model = True, overwrite_gml=True):
 
@@ -132,7 +132,7 @@ if __name__=="__main__":
         result_dic_sense = compare_networks(w2v_gml_path, sense_path, w2v_subgraph_path_sense, sense_subgraph_path, "Sense", threshold_sense, result_path)
         result_dics.append(result_dic_sense)
 
-    #create result csv
+    #create result csvs
     create_csv(result_dics, b_cubed_csv_path, pairwise_csv_path, assortativity_csv_path, adj_rand_csv_path)
 
 
