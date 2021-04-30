@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="VcsDirectoryMappings">
-    <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/Concepticon/concepticon-data" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/NoRaRe/norare-data" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/concepticon2/concepticon-data" vcs="Git" />
-  </component>
-</project>
