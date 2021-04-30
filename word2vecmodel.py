@@ -70,14 +70,14 @@ def preproc(file):
 # In[17]:
 
 
-def build_model(corpus_path, model_output_path, vocab_output_path):
+def build_model(corpus_path, model_output_path, vocab_output_path, window_size = 5):
     with open(corpus_path, newline='') as f:
         reader = csv.reader(f)
         data = list(reader)
     
     preproc_data = preproc(data)
 
-    model = gensim.models.Word2Vec(preproc_data, min_count = 1, window = 5)
+    model = gensim.models.Word2Vec(preproc_data, min_count = 1, window = window_size)
     model.save(model_output_path)
 
     vocab = list(model.wv.vocab)

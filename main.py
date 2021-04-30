@@ -29,6 +29,7 @@ result_path = "output/w2v/evaluation.txt"
 w2v_subgraph_path_clics = 'output/w2v/w2v_subgraph_clics.gml'
 w2v_subgraph_path_EAT = 'output/w2v/w2v_subgraph_EAT.gml'
 w2v_subgraph_path_sense = 'output/w2v/w2v_subgraph_sense.gml'
+window_size = 3
 
 overwrite_model = True
 overwrite_w2v = True
@@ -65,7 +66,7 @@ adj_rand_csv_path = 'evaluation/adj_rand.csv'
 def get_w2v(corpus_path, model_path, vocab_path, mapped_concepts_path, edges_path, gml_path, overwrite_model = True, overwrite_gml=True):
 
     if overwrite_model==True or not Path(model_path).is_file():
-        word2vecmodel.build_model(corpus_path, model_path, vocab_path)
+        word2vecmodel.build_model(corpus_path, model_path, vocab_path, window_size=window_size)
         mapping.get_shared_concepts(vocab_path, mapped_concepts_path)
 
     if overwrite_gml==True or not Path(gml_path).is_file():
