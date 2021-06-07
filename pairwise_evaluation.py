@@ -3,11 +3,9 @@ import igraph
 w2v_path = "output/word2vec_graph_google.gml"
 CLICS_path = "output/clics_subgraph_google.gml"
 
-def evaluate(test_path, gold_path):
-    test_graph = igraph.read(test_path)
-    gold_graph = igraph.read(gold_path)
+def evaluate(test_graph, gold_graph):
 
-    test_ID_pairs = [[edge.vertex_tuple[0]["name"],edge.vertex_tuple[1]["name"]] for edge in test_graph.es]
+    test_ID_pairs = [[edge.vertex_tuple[0]["ID"],edge.vertex_tuple[1]["ID"]] for edge in test_graph.es]
     gold_ID_pairs = [[edge.vertex_tuple[0]["ID"],edge.vertex_tuple[1]["ID"]] for edge in gold_graph.es]
 
     tp = [edge for edge in test_ID_pairs if edge in gold_ID_pairs]

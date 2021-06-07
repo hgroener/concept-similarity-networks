@@ -3,9 +3,7 @@ import igraph
 w2v_path = 'output/w2v/w2v_subgraph_clics.gml'
 CLICS_path = 'output/CLICS/clics_subgraph.gml'
 
-def get_adj_rand(test_path, gold_path):
-    test_graph = igraph.read(test_path)
-    gold_graph = igraph.read(gold_path)
+def get_adj_rand(test_graph, gold_graph):
 
     gold_clustering = gold_graph.community_infomap()
     gold_subgraphs = gold_clustering.subgraphs()

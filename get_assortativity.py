@@ -4,10 +4,9 @@ import get_b_cubed
 w2v_path = "output/word2vec_graph.gml"
 CLICS_path = "output/clics_subgraph.gml"
 
-def get_assortativity(test_path, gold_path):
-    test_graph = igraph.read(test_path)
-    gold_graph = igraph.read(gold_path)
-    gold_subgraphs = get_b_cubed.get_community_subgraphs(gold_graph)
+def get_assortativity(test_graph, gold_graph):
+
+    gold_subgraphs = get_b_cubed.coms_sgraphs(gold_graph)[1]
 
     for node in test_graph.vs:
         for n, subgraph in enumerate(gold_subgraphs):

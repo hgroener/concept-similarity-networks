@@ -1,42 +1,41 @@
 import igraph
 
-w2v_path = "output/word2vec_graph.gml"
-CLICS_path = "output/clics_subgraph.gml"
+w2v_path = "output/w2v/t_networks_clics/w2v_t96.gml"
+CLICS_path = "output/CLICS/clics_subgraph.gml"
 
-def get_community_subgraphs(graph):
-    communities = graph.community_infomap()
-    community_subgraphs = communities.subgraphs()
-    return(community_subgraphs)
+def coms_sgraphs(graph):
+    coms = graph.community_infomap()
+    sgraphs = coms.subgraphs()
+    return((coms, sgraphs))
 
-def get_b_cubed(test_path, gold_path):
-    test_graph = igraph.read(test_path)
-    gold_graph = igraph.read(gold_path)
-    test_subgraphs = get_community_subgraphs(test_graph)
-    gold_subgraphs = get_community_subgraphs(gold_graph)
+def get_b_cubed(test_graph, gold_graph):
+    test_coms, test_sgraphs = coms_sgraphs(test_graph)
+    gold_coms, gold_sgraphs = coms_sgraphs(gold_graph)
 
-    precision_scores = []
-    recall_scores = []
+    p_list = []
+    r_list = []
+    for v in test_graph.vs:
+        intersection = []
+        test_com_no = test_coms.membership[v.index]
+        test_com = test_sgraphs[test_com_no]
 
-    for test_subgraph in test_subgraphs:
-        for node in test_subgraph.vs:
-            intersection = []
-            for other_node in test_subgraph.vs:
-                gold_subgraph = [g for g in gold_subgraphs if node["name"] in [node["ID"] for node in g.vs]][0]
-                if other_node["name"] in [node["ID"] for node in gold_subgraph.vs]:
-                    intersection.append(other_node)
-            precision_scores.append(len(intersection)/len(test_subgraph.vs))
-            recall_scores.append(len(intersection)/len(gold_subgraph.vs))
+        gold_v = gold_graph.vs.select(lambda vertex: vertex["ID"] == v["ID"])[0]
+        gold_coms_no = gold_coms.membership[gold_v.index]
+        gold_com = gold_sgraphs[gold_coms_no]
 
+        for v1 in test_com.vs:
+            if v1["ID"] in [v2["ID"] for v2 in gold_com.vs]:
+                intersection.append(v1)
+        p_list.append(len(intersection) / len(test_com.vs))
+        r_list.append(len(intersection) / len(gold_com.vs))
 
-    result_dic = {}
-    result_dic["precision"] = sum(precision_scores)/len(precision_scores)
-    result_dic["recall"] = sum(recall_scores)/len(recall_scores)
-    result_dic["F-score"] = (2 * result_dic["precision"] * result_dic["recall"])/(result_dic["precision"] + result_dic["recall"])
+    p = sum(p_list)/len(p_list)
+    r = sum(r_list)/len(r_list)
+    F = (2 * p * r)/(p + r)
 
-    return((result_dic))
+    result_dic = {"precision": p, "recall": r, "F-score": F}
+    return(result_dic)
+
 
 if __name__=="__main__":
-    result_dic = get_b_cubed(w2v_path, CLICS_path)
-    for key in result_dic:
-        print(key + ": " + str(result_dic[key]))
-
+    print(get_b_cubed(w2v_path, CLICS_path))

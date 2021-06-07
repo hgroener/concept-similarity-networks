@@ -6,7 +6,7 @@ threshold = 0.98
 def implement_threshold(w2v_graph, threshold):
     edgelist = []
     for edge in w2v_graph.es:
-        if edge["weight"]<threshold:
+        if edge["normedweight"]<threshold:
             edgelist.append(edge)
     w2v_graph.delete_edges(edgelist)
     return(w2v_graph)

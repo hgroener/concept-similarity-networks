@@ -3,20 +3,24 @@ import mapping
 import create_network
 import create_EAT_network
 import create_sense_network
-import generate_subgraph
-import implement_threshold
-import evaluation
+import compare_networks
 
 from pathlib import Path
 from pynorare import NoRaRe
 import pandas as pd
+import itertools
+from tqdm import tqdm
 
 #create file structure
 Path("output/w2v").mkdir(parents=True, exist_ok=True)
 Path("output/CLICS").mkdir(parents=True, exist_ok=True)
 Path("output/EAT").mkdir(parents=True, exist_ok=True)
 Path("output/sense").mkdir(parents=True, exist_ok=True)
-Path("evaluation").mkdir(parents=True, exist_ok=True)
+
+Path("evaluation/w2v").mkdir(parents=True, exist_ok=True)
+Path("evaluation/CLICS").mkdir(parents=True, exist_ok=True)
+Path("evaluation/EAT").mkdir(parents=True, exist_ok=True)
+Path("evaluation/sense").mkdir(parents=True, exist_ok=True)
 
 #w2v
 corpus_path = 'input/Brown/brown.csv'
@@ -38,6 +42,7 @@ overwrite_w2v = True
 #CLICS
 compare_clics = True
 clics_gml_path = 'input/CLICS/network-3-families.gml'
+clics_normed = 'output/CLICS/clics_normed.gml'
 clics_subgraph_path = 'output/CLICS/clics_subgraph.gml'
 threshold_clics = 0.96
 
@@ -50,11 +55,11 @@ EAT_subgraph_path = 'output/EAT/EAT_subgraph_w2v.gml'
 threshold_EAT = 0.97
 
 #Sense
-compare_sense=True
+compare_sense=False
 sense = norare.datasets["Starostin-2000-Sense"]
 sense_path = "output/sense/sense.gml"
 sense_subgraph_path = "output/sense/sense_subgraph.gml"
-threshold_sense = 0.93
+threshold_sense = 0.80
 
 #evaluation
 result_dics = []
@@ -62,6 +67,8 @@ b_cubed_csv_path = 'evaluation/b_cubed.csv'
 pairwise_csv_path = 'evaluation/pairwise.csv'
 assortativity_csv_path = 'evaluation/assortativity.csv'
 adj_rand_csv_path = 'evaluation/adj_rand.csv'
+
+models = [{"name": "w2v", "path": w2v_gml_path, "compare": True}, {"name": "CLICS", "path": clics_gml_path, "threshold": threshold_clics, "compare": compare_clics}, {"name": "EAT", "path": EAT_path, "threshold": threshold_EAT, "compare": compare_EAT}, {"name": "sense", "path": sense_path, "threshold": threshold_sense, "compare": compare_sense}]
 
 def get_w2v(corpus_path, model_path, vocab_path, mapped_concepts_path, edges_path, gml_path, overwrite_model = True, overwrite_gml=True):
 
@@ -75,19 +82,10 @@ def get_w2v(corpus_path, model_path, vocab_path, mapped_concepts_path, edges_pat
     return(print("w2v model successfully built."))
 
 
-def compare_networks(w2v_path, gold_path, w2v_subgraph_path, gold_subgraph_path, model_type, threshold, result_path):
-    w2v_subgraph_raw, gold_subgraph = generate_subgraph.get_subgraphs(w2v_path, gold_path)
-    w2v_subgraph = implement_threshold.implement_threshold(w2v_subgraph_raw, threshold)
-    w2v_subgraph.write_gml(w2v_subgraph_path)
-    gold_subgraph.write_gml(gold_subgraph_path)
-    #evaluation.evaluate(w2v_subgraph_path, gold_subgraph_path, model_type, threshold, result_path)
-    result_dic = evaluation.get_result_dic(w2v_subgraph_path, gold_subgraph_path, model_type, threshold)
-    #return(print("w2v network successfully compared to " + model_type))
-    return(result_dic)
-
 def get_prf_df(dics, key):
     prfs = [dic[key] for dic in dics]
-    d = {"dataset": [dic["model type"] for dic in dics], "precision": [round(prf["precision"], 4) for prf in prfs], "recall": [round(prf["recall"], 4) for prf in prfs],
+    d = {"test dataset": [dic["test model"] for dic in dics], "gold dataset": [dic["gold model"] for dic in dics],
+         "precision": [round(prf["precision"], 4) for prf in prfs], "recall": [round(prf["recall"], 4) for prf in prfs],
          "F-score": [round(prf["F-score"], 4) for prf in prfs]}
     df = pd.DataFrame(data=d)
     return(df)
@@ -116,25 +114,43 @@ if __name__=="__main__":
     #get w2v network
     get_w2v(corpus_path, model_path, vocab_path, mapped_concepts_path, edges_path, w2v_gml_path, overwrite_model=overwrite_model, overwrite_gml=overwrite_w2v)
 
+
     #compare to clics
     if compare_clics == True:
-        result_dic_clics = compare_networks(w2v_gml_path, clics_gml_path, w2v_subgraph_path_clics, clics_subgraph_path, "CLICS", threshold_clics, result_path)
-        result_dics.append(result_dic_clics)
+        clics_graph = igraph.read(clics_gml_path)
+        clics_graph = create_network.norm_weights(clics_graph)
+        clics_graph.write_gml(clics_normed)
+
+     #   result_dic_clics = compare_networks(w2v_gml_path, clics_gml_path, w2v_subgraph_path_clics, clics_subgraph_path, "CLICS", threshold_clics)
+      #  result_dics.append(result_dic_clics)
 
     #compare to EAT
-    if compare_EAT == True:
-        create_EAT_network.build_network(EAT, EAT_path)
-        result_dic_EAT = compare_networks(w2v_gml_path, EAT_path, w2v_subgraph_path_EAT, EAT_subgraph_path, "EAT", threshold_EAT, result_path)
-        result_dics.append(result_dic_EAT)
+    #if compare_EAT == True:
+    create_EAT_network.build_network(EAT, EAT_path)
+        #result_dic_EAT = compare_networks(w2v_gml_path, EAT_path, w2v_subgraph_path_EAT, EAT_subgraph_path, "EAT", threshold_EAT)
+        #result_dics.append(result_dic_EAT)
 
     #compare to sense
-    if compare_sense == True:
-        create_sense_network.build_network(sense, sense_path)
-        result_dic_sense = compare_networks(w2v_gml_path, sense_path, w2v_subgraph_path_sense, sense_subgraph_path, "Sense", threshold_sense, result_path)
-        result_dics.append(result_dic_sense)
+    #if compare_sense == True:
+    create_sense_network.build_network(sense, sense_path)
+        #result_dic_sense = compare_networks(w2v_gml_path, sense_path, w2v_subgraph_path_sense, sense_subgraph_path, "Sense", threshold_sense)
+        #result_dics.append(result_dic_sense)
+
+    #compare networks to each other
+    results = []
+    for a,b in tqdm(itertools.combinations([model for model in models if model["compare"] == True],2)):
+            if a["name"] == "w2v":
+                result = compare_networks.compare_networks(a["path"], b["path"], a["name"], b["name"], threshold=b["threshold"])
+            else:
+                result = compare_networks.compare_networks(a["path"], b["path"], a["name"], b["name"], w2v=False)
+            results.append(result)
+
+    for dic in results:
+        for key in dic:
+            print(key, dic[key])
 
     #create result csvs
-    create_csv(result_dics, b_cubed_csv_path, pairwise_csv_path, assortativity_csv_path, adj_rand_csv_path)
+    #create_csv(result_dics, b_cubed_csv_path, pairwise_csv_path, assortativity_csv_path, adj_rand_csv_path)
 
 
 
