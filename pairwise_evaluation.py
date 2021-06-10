@@ -1,5 +1,3 @@
-import igraph
-
 w2v_path = "output/word2vec_graph_google.gml"
 CLICS_path = "output/clics_subgraph_google.gml"
 
