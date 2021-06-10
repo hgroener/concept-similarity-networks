@@ -15,7 +15,7 @@ EAT_subgraph_path = 'output/EAT/EAT_subgraph.gml'
 sense_path = 'output/sense/sense.gml'
 sense_subgraph_path = 'output/sense/sense_subgraph.gml'
 threshold = [n/100 for n in range(75, 100)]
-n_threshold = [n/10 for n in range(10, 20)]
+n_threshold = [n/10 for n in range(10, 50)]
 t_output_folder_clics = "output/w2v/t_networks_clics"
 t_output_folder_EAT = "output/w2v/t_networks_EAT"
 t_output_folder_sense= "output/w2v/t_networks_sense"
@@ -36,12 +36,13 @@ def find_threshold(w2v_path, gold_path, gold_subgraph_path, threshold_list, t_ou
     results = []
     w2v_subgraph_no_t, gold_subgraph = generate_subgraph.get_subgraphs(w2v_path, gold_path)
     gold_subgraph.write_gml(gold_subgraph_path)
+    print("implementing thresholds...\n")
     for t in tqdm(threshold_list):
         w2v_gml_path = t_output_folder + '/t' + str("{:.2f}".format(t))[2:] + ".gml"
         if not Path(w2v_gml_path).is_file():
             w2v_graph = implement_threshold.implement_threshold(w2v_subgraph_no_t, t)
             w2v_graph.write_gml(w2v_gml_path)
-        w2v_graph =  igraph.read(w2v_gml_path)
+        w2v_graph = igraph.read(w2v_gml_path)
         com_num, com_size = get_graph_stats(w2v_graph)
         spearman = get_spearman.get_spearman(w2v_gml_path, gold_subgraph_path)
         results.append((t, com_num, com_size, spearman[0]))
@@ -75,8 +76,8 @@ if __name__=="__main__":
 
 
     clics_eat_graph = igraph.read(clics_eat)
-    clics_eat_normed = norm_weights(clics_eat_graph)
-    clics_eat_normed.write_gml(clics_eat)
+    #clics_eat_normed = norm_weights(clics_eat_graph)
+    #clics_eat_normed.write_gml(clics_eat)
 
     eat_clics_graph = igraph.read(eat_clics)
     print("CLICS", get_graph_stats(clics_eat_graph))

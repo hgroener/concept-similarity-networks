@@ -5,7 +5,7 @@ import igraph
 
 norare = NoRaRe("input/NoRaRe/norare-data")
 EAT = norare.datasets["Kiss-1973-EAT"]
-output_file = 'output/EAT_graph.gml'
+output_file = 'output/EAT/EAT_graph.gml'
 
 def convert_EAT(EAT):
     cids = []

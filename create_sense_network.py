@@ -3,8 +3,6 @@ from pynorare import NoRaRe
 import itertools
 from tqdm import tqdm
 
-from create_network import norm_weights
-
 norare = NoRaRe("input/NoRaRe/norare-data")
 sense = norare.datasets["Starostin-2000-Sense"]
 output_file = 'output/sense/sense.gml'
@@ -36,7 +34,6 @@ def build_network(sense, output_file):
     graph.vs["ID"] = cids
     graph.add_edges([(ID, other_ID) for (ID, other_ID, weight) in edges])
     graph.es['weight'] = [weight for ID, other_ID, weight in edges]
-    graph = norm_weights(graph)
     graph.write_gml(output_file)
     return(print("sense network successfully built and saved to " + output_file))
 

@@ -35,8 +35,8 @@ w2v_subgraph_path_EAT = 'output/w2v/w2v_subgraph_EAT.gml'
 w2v_subgraph_path_sense = 'output/w2v/w2v_subgraph_sense.gml'
 window_size = 3
 
-overwrite_model = True
-overwrite_w2v = True
+overwrite_model = False
+overwrite_w2v = False
 
 
 #CLICS
@@ -44,7 +44,7 @@ compare_clics = True
 clics_gml_path = 'input/CLICS/network-3-families.gml'
 clics_normed = 'output/CLICS/clics_normed.gml'
 clics_subgraph_path = 'output/CLICS/clics_subgraph.gml'
-threshold_clics = 0.96
+#threshold_clics = 0.96
 
 #EAT
 compare_EAT = True
@@ -52,14 +52,14 @@ norare = NoRaRe("input/NoRaRe/norare-data")
 EAT = norare.datasets["Kiss-1973-EAT"]
 EAT_path = 'output/EAT/EAT_graph.gml'
 EAT_subgraph_path = 'output/EAT/EAT_subgraph_w2v.gml'
-threshold_EAT = 0.97
+#threshold_EAT = 0.97
 
 #Sense
-compare_sense=False
+compare_sense= True
 sense = norare.datasets["Starostin-2000-Sense"]
 sense_path = "output/sense/sense.gml"
 sense_subgraph_path = "output/sense/sense_subgraph.gml"
-threshold_sense = 0.80
+#threshold_sense = 0.80
 
 #evaluation
 result_dics = []
@@ -67,90 +67,79 @@ b_cubed_csv_path = 'evaluation/b_cubed.csv'
 pairwise_csv_path = 'evaluation/pairwise.csv'
 assortativity_csv_path = 'evaluation/assortativity.csv'
 adj_rand_csv_path = 'evaluation/adj_rand.csv'
+result_csv_path = 'evaluation/results.csv'
 
-models = [{"name": "w2v", "path": w2v_gml_path, "compare": True}, {"name": "CLICS", "path": clics_gml_path, "threshold": threshold_clics, "compare": compare_clics}, {"name": "EAT", "path": EAT_path, "threshold": threshold_EAT, "compare": compare_EAT}, {"name": "sense", "path": sense_path, "threshold": threshold_sense, "compare": compare_sense}]
+models = [{"name": "w2v", "path": w2v_gml_path, "compare": True}, {"name": "CLICS", "path": clics_gml_path, "compare": compare_clics},
+          {"name": "EAT", "path": EAT_path, "compare": compare_EAT}, {"name": "sense", "path": sense_path, "compare": compare_sense}]
 
 def get_w2v(corpus_path, model_path, vocab_path, mapped_concepts_path, edges_path, gml_path, overwrite_model = True, overwrite_gml=True):
 
     if overwrite_model==True or not Path(model_path).is_file():
+        print("building w2v model...")
         word2vecmodel.build_model(corpus_path, model_path, vocab_path, window_size=window_size)
         mapping.get_shared_concepts(vocab_path, mapped_concepts_path)
+        print("w2v model successfully built and saved to", model_path)
+    else:
+        print("using pre-built w2v model at", model_path)
 
     if overwrite_gml==True or not Path(gml_path).is_file():
+        print("creating w2v network...")
         create_network.get_gml(mapped_concepts_path, model_path, edges_path, gml_path)
+        print("w2v network successfully built and saved to", gml_path)
+    else:
+        print("using pre-built w2v network at", gml_path)
 
-    return(print("w2v model successfully built."))
+    return(print("w2v model and network ready."))
 
 
 def get_prf_df(dics, key):
     prfs = [dic[key] for dic in dics]
-    d = {"test dataset": [dic["test model"] for dic in dics], "gold dataset": [dic["gold model"] for dic in dics],
+    d = {"test set": [dic["test model"] for dic in dics], "gold set": [dic["gold model"] for dic in dics],
          "precision": [round(prf["precision"], 4) for prf in prfs], "recall": [round(prf["recall"], 4) for prf in prfs],
          "F-score": [round(prf["F-score"], 4) for prf in prfs]}
     df = pd.DataFrame(data=d)
     return(df)
 
+def get_df(result_dics):
+    test = [dic["test model"] for dic in result_dics]
+    gold = [dic["gold model"] for dic in result_dics]
+    b_cubed = [round(dic["B-Cubed score"]["F-score"], 4) for dic in result_dics]
+    pairwise = [round(dic["pairwise evaluation score"]["F-score"], 4) for dic in result_dics]
+    assortativity = [round(dic["assortativity score"], 4) for dic in result_dics]
+    adj_rand = [round(dic["Adjusted Rand Coefficient"], 4) for dic in result_dics]
+    df = pd.DataFrame({"test set": test, "gold set": gold, "B-cubed score": b_cubed, "pairwise evaluation score": pairwise, "assortativity": assortativity, "adjusted rand coefficient": adj_rand})
+    return df
 
-def create_csv(result_dics, b_cubed_path, pairwise_path, assortativity_path, adj_rand_path):
-    df_b_cubed = get_prf_df(result_dics, "B-Cubed score")
-    df_pairwise = get_prf_df(result_dics, "pairwise evaluation score")
-    df_assortativity = pd.DataFrame(data={"dataset": [dic["model type"] for dic in result_dics],
-                                          "assortativity": [round(dic["assortativity score"], 4) for dic in
-                                                            result_dics]})
-    df_adj_rand = pd.DataFrame(data={"dataset": [dic["model type"] for dic in result_dics],
-                                     "adjusted rand coefficient": [round(dic["Adjusted Rand Coefficient"], 4) for dic in
-                                                                   result_dics]})
 
-    df_b_cubed.to_csv(b_cubed_path, header="B-Cubed")
-    df_pairwise.to_csv(pairwise_path, header="pairwise evaluation")
-    df_assortativity.to_csv(assortativity_path, header="assortativity")
-    df_adj_rand.to_csv(adj_rand_path, header="adjusted rand coefficient")
-
-    return (print("results saved"))
 
 
 if __name__=="__main__":
 
-    #get w2v network
+    #create w2v network
     get_w2v(corpus_path, model_path, vocab_path, mapped_concepts_path, edges_path, w2v_gml_path, overwrite_model=overwrite_model, overwrite_gml=overwrite_w2v)
-
-
-    #compare to clics
-    if compare_clics == True:
-        clics_graph = igraph.read(clics_gml_path)
-        clics_graph = create_network.norm_weights(clics_graph)
-        clics_graph.write_gml(clics_normed)
-
-     #   result_dic_clics = compare_networks(w2v_gml_path, clics_gml_path, w2v_subgraph_path_clics, clics_subgraph_path, "CLICS", threshold_clics)
-      #  result_dics.append(result_dic_clics)
-
-    #compare to EAT
-    #if compare_EAT == True:
+    #create EAT network
     create_EAT_network.build_network(EAT, EAT_path)
-        #result_dic_EAT = compare_networks(w2v_gml_path, EAT_path, w2v_subgraph_path_EAT, EAT_subgraph_path, "EAT", threshold_EAT)
-        #result_dics.append(result_dic_EAT)
-
-    #compare to sense
-    #if compare_sense == True:
+    #create_Sense_network
     create_sense_network.build_network(sense, sense_path)
-        #result_dic_sense = compare_networks(w2v_gml_path, sense_path, w2v_subgraph_path_sense, sense_subgraph_path, "Sense", threshold_sense)
-        #result_dics.append(result_dic_sense)
 
     #compare networks to each other
     results = []
-    for a,b in tqdm(itertools.combinations([model for model in models if model["compare"] == True],2)):
-            if a["name"] == "w2v":
-                result = compare_networks.compare_networks(a["path"], b["path"], a["name"], b["name"], threshold=b["threshold"])
-            else:
-                result = compare_networks.compare_networks(a["path"], b["path"], a["name"], b["name"], w2v=False)
-            results.append(result)
-
-    for dic in results:
-        for key in dic:
-            print(key, dic[key])
+    print("comparing networks...")
+    for a,b in tqdm(itertools.combinations([model for model in models if model["compare"]],2)):
+        result = compare_networks.compare_networks(a["path"], b["path"], a["name"], b["name"])
+        results.append(result)
 
     #create result csvs
-    #create_csv(result_dics, b_cubed_csv_path, pairwise_csv_path, assortativity_csv_path, adj_rand_csv_path)
+    df_b_cubed = get_prf_df(results, "B-Cubed score")
+    df_pairwise = get_prf_df(results, "pairwise evaluation score")
+    result_df = get_df(results)
+    print("*** RESULTS ***\n", result_df)
+    df_b_cubed.to_csv(b_cubed_csv_path, header="B-cubed scores")
+    print("B-cubed scores of network comparison saved to", b_cubed_csv_path)
+    df_pairwise.to_csv(pairwise_csv_path, header="pairwise evaluation scores")
+    print("pairwise evaluation scores of network comparison saved to", pairwise_csv_path)
+    result_df.to_csv(result_csv_path, header="network comparison")
+    print("full results of network comparison saved to", result_csv_path)
 
 
 

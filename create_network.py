@@ -12,7 +12,7 @@ mapped_concepts_path = "output/w2v/mapped_concepts.tsv"
 w2v_model = "output/w2v/w2v.model"
 edges = "output/w2v/edges.txt"
 output_path = "output/w2v/w2v.gml"
-
+threshold = 0.7
 
 def read_mappings(table):
     print("reading mappings...")
@@ -59,7 +59,7 @@ def get_mean_vector(concepticon_ID, vocab, model):
     return mean_vector
 
 
-def create_network(vocab, weighted_edges):
+def create_network(vocab, weighted_edges, threshold):
     word2vec_graph = igraph.Graph()
     word2vec_graph.add_vertices([key for key in vocab])
     word2vec_graph.vs["ID"] = [key for key in vocab]
@@ -71,20 +71,22 @@ def create_network(vocab, weighted_edges):
         w.append(edge_tuple[2])
     word2vec_graph.add_edges(no_w)
     word2vec_graph.es['weight'] = w
-    word2vec_graph = norm_weights(word2vec_graph)
+    below_t = [e for e in word2vec_graph.es if e['weight']<threshold]
+    word2vec_graph.delete_edges(below_t)
+    #word2vec_graph = norm_weights(word2vec_graph)
     return word2vec_graph
 
 
-def get_gml(mapped_concepts_path, model, edges_path, output_file):
+def get_gml(mapped_concepts_path, model, edges_path, output_file, threshold=0.7):
     print("network generation started.")
     mapped_IDs = read_mappings(mapped_concepts_path)
     print("mappings read.")
     edges_list = create_edges(model, mapped_IDs, edges_path)
     print("edges created.")
-    word2vec_network = create_network(mapped_IDs, edges_list)
+    word2vec_network = create_network(mapped_IDs, edges_list, threshold)
     print("network created.")
     word2vec_network.write_gml(output_file)
     return(print("graph saved to " + output_file))
 
 if __name__=="__main__":
-    get_gml(mapped_concepts_path, w2v_model, edges, output_path)
+    get_gml(mapped_concepts_path, w2v_model, edges, output_path, threshold=threshold)
