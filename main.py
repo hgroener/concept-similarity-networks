@@ -34,6 +34,7 @@ w2v_subgraph_path_clics = 'output/w2v/w2v_subgraph_clics.gml'
 w2v_subgraph_path_EAT = 'output/w2v/w2v_subgraph_EAT.gml'
 w2v_subgraph_path_sense = 'output/w2v/w2v_subgraph_sense.gml'
 window_size = 3
+w_attribute = "weight"
 
 overwrite_model = False
 overwrite_w2v = False
@@ -44,10 +45,12 @@ compare_clics = True
 clics_gml_path = 'input/CLICS/network-3-families.gml'
 clics_normed = 'output/CLICS/clics_normed.gml'
 clics_subgraph_path = 'output/CLICS/clics_subgraph.gml'
+w_attribute_clics = "FamilyWeight"
 #threshold_clics = 0.96
 
 #EAT
 compare_EAT = True
+overwrite_EAT = False
 norare = NoRaRe("input/NoRaRe/norare-data")
 EAT = norare.datasets["Kiss-1973-EAT"]
 EAT_path = 'output/EAT/EAT_graph.gml'
@@ -56,6 +59,7 @@ EAT_subgraph_path = 'output/EAT/EAT_subgraph_w2v.gml'
 
 #Sense
 compare_sense= True
+overwrite_sense = False
 sense = norare.datasets["Starostin-2000-Sense"]
 sense_path = "output/sense/sense.gml"
 sense_subgraph_path = "output/sense/sense_subgraph.gml"
@@ -69,8 +73,10 @@ assortativity_csv_path = 'evaluation/assortativity.csv'
 adj_rand_csv_path = 'evaluation/adj_rand.csv'
 result_csv_path = 'evaluation/results.csv'
 
-models = [{"name": "w2v", "path": w2v_gml_path, "compare": True}, {"name": "CLICS", "path": clics_gml_path, "compare": compare_clics},
-          {"name": "EAT", "path": EAT_path, "compare": compare_EAT}, {"name": "sense", "path": sense_path, "compare": compare_sense}]
+models = [{"name": "w2v", "path": w2v_gml_path, "weight attribute": w_attribute, "compare": True},
+          {"name": "CLICS", "path": clics_gml_path, "weight attribute": w_attribute_clics, "compare": compare_clics},
+          {"name": "EAT", "path": EAT_path, "weight attribute": w_attribute, "compare": compare_EAT},
+          {"name": "sense", "path": sense_path, "weight attribute": w_attribute, "compare": compare_sense}]
 
 def get_w2v(corpus_path, model_path, vocab_path, mapped_concepts_path, edges_path, gml_path, overwrite_model = True, overwrite_gml=True):
 
@@ -107,7 +113,8 @@ def get_df(result_dics):
     pairwise = [round(dic["pairwise evaluation score"]["F-score"], 4) for dic in result_dics]
     assortativity = [round(dic["assortativity score"], 4) for dic in result_dics]
     adj_rand = [round(dic["Adjusted Rand Coefficient"], 4) for dic in result_dics]
-    df = pd.DataFrame({"test set": test, "gold set": gold, "B-cubed score": b_cubed, "pairwise evaluation score": pairwise, "assortativity": assortativity, "adjusted rand coefficient": adj_rand})
+    spearman = [round(dic["spearman correlation"], 4) for dic in result_dics]
+    df = pd.DataFrame({"test set": test, "gold set": gold, "B-cubed score": b_cubed, "pairwise evaluation score": pairwise, "assortativity": assortativity, "adjusted rand coefficient": adj_rand, "spearman correlation": spearman})
     return df
 
 
@@ -118,15 +125,17 @@ if __name__=="__main__":
     #create w2v network
     get_w2v(corpus_path, model_path, vocab_path, mapped_concepts_path, edges_path, w2v_gml_path, overwrite_model=overwrite_model, overwrite_gml=overwrite_w2v)
     #create EAT network
-    create_EAT_network.build_network(EAT, EAT_path)
-    #create_Sense_network
-    create_sense_network.build_network(sense, sense_path)
+    if overwrite_EAT or not Path(EAT_path).is_file():
+        create_EAT_network.build_network(EAT, EAT_path)
+    #create Sense network
+    if overwrite_sense or not Path(sense_path).is_file():
+        create_sense_network.build_network(sense, sense_path)
 
     #compare networks to each other
     results = []
     print("comparing networks...")
     for a,b in tqdm(itertools.combinations([model for model in models if model["compare"]],2)):
-        result = compare_networks.compare_networks(a["path"], b["path"], a["name"], b["name"])
+        result = compare_networks.compare_networks(a["path"], b["path"], a["name"], b["name"], test_w=a["weight attribute"], gold_w=b["weight attribute"])
         results.append(result)
 
     #create result csvs

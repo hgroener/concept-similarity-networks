@@ -6,6 +6,7 @@ import get_b_cubed
 import pairwise_evaluation
 import get_assortativity
 import get_adj_rand
+import get_spearman
 
 
 w2v_path = "output/w2v/w2v_subgraph_clics.gml"
@@ -19,21 +20,23 @@ def get_community_subgraphs(graph):
     community_subgraphs = communities.subgraphs()
     return(community_subgraphs)
 
-def get_result_dic(test_graph, gold_graph, test_model_type, gold_model_type, b_cubed = True, pe = True, adj_rand = True, assortativity = True):
+def get_result_dic(test_graph, gold_graph, test_model_type, gold_model_type, test_w = "weight", gold_w = "weight", b_cubed = True, pe = True, adj_rand = True, assortativity = True, spearman = True):
 
     result_dic = {}
 
     result_dic["test model"] = test_model_type
     result_dic["gold model"] = gold_model_type
 
-    if b_cubed == True:
+    if b_cubed:
         result_dic["B-Cubed score"] = get_b_cubed.get_b_cubed(test_graph, gold_graph)
-    if pe == True:
+    if pe:
         result_dic["pairwise evaluation score"] = pairwise_evaluation.evaluate(test_graph, gold_graph)
-    if adj_rand == True:
+    if adj_rand:
         result_dic["Adjusted Rand Coefficient"] = get_adj_rand.get_adj_rand(test_graph, gold_graph)
-    if assortativity == True:
+    if assortativity:
         result_dic["assortativity score"] = get_assortativity.get_assortativity(test_graph, gold_graph)
+    if spearman:
+        result_dic["spearman correlation"] = get_spearman.get_spearman(test_graph, gold_graph, w1=test_w, w2=gold_w, weighted_degrees=True)[0]
 
     return(result_dic)
 

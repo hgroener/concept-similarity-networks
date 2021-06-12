@@ -32,10 +32,10 @@ def cut_edges(sg1, sg2):
     test.delete_edges(del_edges)
     return((sg1,sg2))
 
-def compare_networks(test_path, gold_path, test_model_type, gold_model_type):
+def compare_networks(test_path, gold_path, test_model_type, gold_model_type, test_w = "weight", gold_w = "weight"):
     test_subgraph, gold_subgraph = generate_subgraph.get_subgraphs(test_path, gold_path)
     test_subgraph, gold_subgraph = cut_edges(test_subgraph, gold_subgraph)
-    result_dic = evaluation.get_result_dic(test_subgraph, gold_subgraph, test_model_type, gold_model_type)
+    result_dic = evaluation.get_result_dic(test_subgraph, gold_subgraph, test_model_type, gold_model_type, test_w=test_w, gold_w=gold_w)
     return(result_dic)
 
 if __name__=="__main__":

@@ -20,8 +20,10 @@ def convert_sense(sense):
     print("creating edges...")
     for concept, other_concept in tqdm(itertools.combinations(concept_list,2)):
         sense_intersection = [sense for sense in concept["senses"].split(";") if sense in other_concept["senses"].split(";")]
+
         intersection_len = len(sense_intersection)
         if intersection_len > 0:
+            #print("intersection btw", concept["concepticon_gloss"], "and", other_concept["concepticon_gloss"], ":",sense_intersection)
             edges.append((str(concept["concepticon_id"]), str(other_concept["concepticon_id"]), intersection_len))
 
 
