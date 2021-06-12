@@ -15,11 +15,11 @@ def get_sorted_degrees(graph):
 def get_sorted_weighted_degrees(graph, w):
     w_degrees = igraph.Graph.strength(graph, weights=w)
     graph.vs["WeightedDegree"] = w_degrees
-    vs_sorted_by_degree = sorted(list(graph.vs), key=lambda v: int(v["WeightedDegree"]), reverse=True)
-    for n, v in enumerate(vs_sorted_by_degree):
-        v["WeightedDegreeRank"] = n
+    #vs_sorted_by_degree = sorted(list(graph.vs), key=lambda v: int(v["WeightedDegree"]), reverse=True)
+    #for n, v in enumerate(vs_sorted_by_degree):
+        #v["WeightedDegreeRank"] = n
     vs_sorted = sorted(list(graph.vs), key=lambda v: int(v["ID"]))
-    sorted_w_degrees = [v["WeightedDegreeRank"] for v in vs_sorted]
+    sorted_w_degrees = [v["WeightedDegree"] for v in vs_sorted]
     return(sorted_w_degrees)
 
 def get_spearman(graph1, graph2, w1="weight", w2="weight", weighted_degrees=False):

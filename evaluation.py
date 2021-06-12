@@ -36,7 +36,7 @@ def get_result_dic(test_graph, gold_graph, test_model_type, gold_model_type, tes
     if assortativity:
         result_dic["assortativity score"] = get_assortativity.get_assortativity(test_graph, gold_graph)
     if spearman:
-        result_dic["spearman correlation"] = get_spearman.get_spearman(test_graph, gold_graph, w1=test_w, w2=gold_w, weighted_degrees=True)[0]
+        result_dic["spearman correlation"] = get_spearman.get_spearman(test_graph, gold_graph, w1=test_w, w2=gold_w, weighted_degrees=True)
 
     return(result_dic)
 

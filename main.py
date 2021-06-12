@@ -113,8 +113,10 @@ def get_df(result_dics):
     pairwise = [round(dic["pairwise evaluation score"]["F-score"], 4) for dic in result_dics]
     assortativity = [round(dic["assortativity score"], 4) for dic in result_dics]
     adj_rand = [round(dic["Adjusted Rand Coefficient"], 4) for dic in result_dics]
-    spearman = [round(dic["spearman correlation"], 4) for dic in result_dics]
-    df = pd.DataFrame({"test set": test, "gold set": gold, "B-cubed score": b_cubed, "pairwise evaluation score": pairwise, "assortativity": assortativity, "adjusted rand coefficient": adj_rand, "spearman correlation": spearman})
+    spearman = [round(dic["spearman correlation"][0], 4) for dic in result_dics]
+    spearman_p = [round(dic["spearman correlation"][1], 4) for dic in result_dics]
+    df = pd.DataFrame({"test set": test, "gold set": gold, "B-cubed score": b_cubed, "pairwise evaluation score": pairwise, "assortativity": assortativity,
+                       "adjusted rand coefficient": adj_rand, "spearman correlation": spearman, "spearman p-value": spearman_p})
     return df
 
 
@@ -125,11 +127,22 @@ if __name__=="__main__":
     #create w2v network
     get_w2v(corpus_path, model_path, vocab_path, mapped_concepts_path, edges_path, w2v_gml_path, overwrite_model=overwrite_model, overwrite_gml=overwrite_w2v)
     #create EAT network
-    if overwrite_EAT or not Path(EAT_path).is_file():
+    if not Path(EAT_path).is_file():
         create_EAT_network.build_network(EAT, EAT_path)
+    else:
+        if overwrite_EAT:
+            create_EAT_network.build_network(EAT, EAT_path)
+        else:
+            print("using prebuilt EAT network at", EAT_path)
+
     #create Sense network
-    if overwrite_sense or not Path(sense_path).is_file():
+    if not Path(sense_path).is_file():
         create_sense_network.build_network(sense, sense_path)
+    else:
+        if overwrite_sense:
+            create_sense_network.build_network(sense, sense_path)
+        else:
+            print("using prebuilt Sense network at", EAT_path)
 
     #compare networks to each other
     results = []
