@@ -3,6 +3,7 @@ import mapping
 import create_network
 import create_EAT_network
 import create_sense_network
+import create_simlex_network
 import compare_networks
 
 from pathlib import Path
@@ -16,11 +17,7 @@ Path("output/w2v").mkdir(parents=True, exist_ok=True)
 Path("output/CLICS").mkdir(parents=True, exist_ok=True)
 Path("output/EAT").mkdir(parents=True, exist_ok=True)
 Path("output/sense").mkdir(parents=True, exist_ok=True)
-
-Path("evaluation/w2v").mkdir(parents=True, exist_ok=True)
-Path("evaluation/CLICS").mkdir(parents=True, exist_ok=True)
-Path("evaluation/EAT").mkdir(parents=True, exist_ok=True)
-Path("evaluation/sense").mkdir(parents=True, exist_ok=True)
+Path("output/MultiSimLex").mkdir(parents=True, exist_ok=True)
 
 #w2v
 corpus_path = 'input/Brown/brown.csv'
@@ -34,7 +31,6 @@ w2v_subgraph_path_clics = 'output/w2v/w2v_subgraph_clics.gml'
 w2v_subgraph_path_EAT = 'output/w2v/w2v_subgraph_EAT.gml'
 w2v_subgraph_path_sense = 'output/w2v/w2v_subgraph_sense.gml'
 window_size = 3
-w_attribute = "weight"
 
 overwrite_model = False
 overwrite_w2v = False
@@ -65,6 +61,11 @@ sense_path = "output/sense/sense.gml"
 sense_subgraph_path = "output/sense/sense_subgraph.gml"
 #threshold_sense = 0.80
 
+#MultiSimLex
+SimLex_path = "output/MultiSimLex/MultiSimLex.gml"
+overwrite_SimLex = True
+compare_MultiSimLex = True
+
 #evaluation
 result_dics = []
 b_cubed_csv_path = 'evaluation/b_cubed.csv'
@@ -76,7 +77,8 @@ result_csv_path = 'evaluation/results.csv'
 models = [{"name": "w2v", "path": w2v_gml_path, "weight attribute": w_attribute, "compare": True},
           {"name": "CLICS", "path": clics_gml_path, "weight attribute": w_attribute_clics, "compare": compare_clics},
           {"name": "EAT", "path": EAT_path, "weight attribute": w_attribute, "compare": compare_EAT},
-          {"name": "sense", "path": sense_path, "weight attribute": w_attribute, "compare": compare_sense}]
+          {"name": "sense", "path": sense_path, "weight attribute": w_attribute, "compare": compare_sense},
+          {"name": "MultiSimLex", "path": SimLex_path, "weight attribute": w_attribute, compare: compare_MultiSimLex}]
 
 def get_w2v(corpus_path, model_path, vocab_path, mapped_concepts_path, edges_path, gml_path, overwrite_model = True, overwrite_gml=True):
 
@@ -143,6 +145,15 @@ if __name__=="__main__":
             create_sense_network.build_network(sense, sense_path)
         else:
             print("using prebuilt Sense network at", EAT_path)
+
+    #create MultiSimLex network
+    if not Path(SimLex_path).is_file():
+        create_simlex_network.get_simlex_gml(SimLex_path)
+    else:
+        if overwrite_SimLex:
+            create_simlex_network.get_simlex_gml(SimLex_path)
+        else:
+            print("using prebuilt MultiSimLex network at", SimLex_path)
 
     #compare networks to each other
     results = []
