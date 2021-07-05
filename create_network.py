@@ -1,4 +1,4 @@
-import gensim
+from gensim.models import KeyedVectors
 import csv
 import itertools
 import scipy
@@ -20,27 +20,41 @@ def read_mappings(table):
         fd.readline()
         rd = csv.reader(fd, delimiter="\t", quotechar='"')
         mapped_IDs = {}
-        for token, ID, c, d, e in tqdm(rd):
+        glosses = []
+        for token, ID, gloss, d, e in tqdm(rd):
             if ID in mapped_IDs:
                 mapped_IDs[ID] = mapped_IDs[ID] + [token]
             else:
                 mapped_IDs[ID] = [token]
-    return mapped_IDs
+                glosses.append(gloss)
+    return (mapped_IDs, glosses)
 
 
-def create_edges(model_file, vocab, filename):
-    model = gensim.models.Word2Vec.load(model_file)
+def create_edges(vector_file, vocab, filename):
+    #model = gensim.models.Word2Vec.load(model_file)
+    vectors = KeyedVectors.load(vector_file)
     edges = []
     print("creating edges...")
     for ID, other_ID in tqdm(itertools.combinations(vocab, 2)):
-        cosine_similarity = 1 - scipy.spatial.distance.cosine(get_mean_vector(ID, vocab, model),
-                                                              get_mean_vector(other_ID, vocab, model))
+        #cosine_similarity = 1 - scipy.spatial.distance.cosine(get_mean_vector(ID, vocab, vectors),
+          #                                                    get_mean_vector(other_ID, vocab, vectors))
+        cosine_similarity = get_highest_sim(vocab[ID], vocab[other_ID], vectors)
         edges.append((ID, other_ID, cosine_similarity))
     print("\nwriting edges to file...")
     with open(filename, 'w') as f:
         for edge in tqdm(edges):
             f.write("%s\n" % str(edge))
     return edges
+
+def get_highest_sim(words, other_words, vectors):
+    sims = []
+    for word in words:
+        for other_word in other_words:
+            sim = 1 - scipy.spatial.distance.cosine(vectors[word], vectors[other_word])
+            sims.append(sim)
+
+    highest_sim = max(sims)
+    return highest_sim
 
 def norm_weights(graph):
     weights = [e["weight"] for e in graph.es]
@@ -54,16 +68,17 @@ def norm_weights(graph):
     graph.es["normed weight"] = w_norm
     return graph
 
-def get_mean_vector(concepticon_ID, vocab, model):
-    mean_vector = sum([model.wv[word] for word in vocab[concepticon_ID]]) / len(vocab[concepticon_ID])
+def get_mean_vector(concepticon_ID, vocab, vectors):
+    mean_vector = sum([vectors[word] for word in vocab[concepticon_ID]]) / len(vocab[concepticon_ID])
     return mean_vector
 
 
-def create_network(vocab, weighted_edges, threshold):
+def create_network(vocab, glosses, weighted_edges, threshold):
     word2vec_graph = igraph.Graph()
     word2vec_graph.add_vertices([key for key in vocab])
     word2vec_graph.vs["ID"] = [key for key in vocab]
     word2vec_graph.vs["word types"] = [", ".join(vocab[key]) for key in vocab]
+    word2vec_graph.vs["Gloss"] = glosses
     no_w = []
     w = []
     for edge_tuple in weighted_edges:
@@ -71,22 +86,25 @@ def create_network(vocab, weighted_edges, threshold):
         w.append(edge_tuple[2])
     word2vec_graph.add_edges(no_w)
     word2vec_graph.es['weight'] = w
-    below_t = [e for e in word2vec_graph.es if e['weight']<threshold]
-    word2vec_graph.delete_edges(below_t)
+    if threshold:
+        below_t = [e for e in word2vec_graph.es if e['weight']<threshold]
+        word2vec_graph.delete_edges(below_t)
     #word2vec_graph = norm_weights(word2vec_graph)
     return word2vec_graph
 
 
-def get_gml(mapped_concepts_path, model, edges_path, output_file, threshold=0.7):
+def get_gml(mapped_concepts_path, vectors, edges_path, output_file, threshold=0.7):
     print("network generation started.")
-    mapped_IDs = read_mappings(mapped_concepts_path)
+    mapped_IDs, glosses = read_mappings(mapped_concepts_path)
     print("mappings read.")
-    edges_list = create_edges(model, mapped_IDs, edges_path)
+    edges_list = create_edges(vectors, mapped_IDs, edges_path)
     print("edges created.")
-    word2vec_network = create_network(mapped_IDs, edges_list, threshold)
+    word2vec_network = create_network(mapped_IDs, glosses, edges_list, threshold)
     print("network created.")
     word2vec_network.write_gml(output_file)
     return(print("graph saved to " + output_file))
 
 if __name__=="__main__":
-    get_gml(mapped_concepts_path, w2v_model, edges, output_path, threshold=threshold)
+    #get_gml(mapped_concepts_path, w2v_model, edges, output_path, threshold=threshold)
+    #get_gml(mapped_concepts_path, w2v_model, edges, "output/w2v/w2v_no_t.gml", threshold = False)
+    get_gml("output/w2v")

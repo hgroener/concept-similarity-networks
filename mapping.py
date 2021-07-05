@@ -18,9 +18,13 @@ def map_concepts(vocab_path):
     mapped_concepts = []
     with open(vocab_path, encoding='utf-8') as vocab:
         for word in map(lambda x: x.strip(), vocab):
-            mapped = to_concepticon([{'gloss': word}])
-            for res in mapped[word]:
-                mapped_concepts += [[word]+res]
+            if word != "":
+                try:
+                    mapped = to_concepticon([{'gloss': word}])
+                    for res in mapped[word]:
+                        mapped_concepts += [[word]+res]
+                except ValueError:
+                    print(word + " couldn't be mapped to Concepticon")
     return(mapped_concepts)
 
 def compare_concepts(mapped, conceptlist_data):

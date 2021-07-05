@@ -11,9 +11,11 @@ output_file = 'output/sense/sense.gml'
 def convert_sense(sense):
     cids = []
     concept_list = []
+    glosses = []
     print("collecting concepts...")
     for cid, concept in tqdm(sense.concepts.items()):
         concept_list.append(concept)
+        glosses.append(concept["concepticon_gloss"])
         cids.append(str(cid))
 
     edges = []
@@ -27,13 +29,14 @@ def convert_sense(sense):
             edges.append((str(concept["concepticon_id"]), str(other_concept["concepticon_id"]), intersection_len))
 
 
-    return((cids, edges))
+    return((cids, glosses, edges))
 
 def build_network(sense, output_file):
-    cids, edges = convert_sense(sense)
+    cids, glosses, edges = convert_sense(sense)
     graph = igraph.Graph()
     graph.add_vertices(cids)
     graph.vs["ID"] = cids
+    graph.vs["Gloss"] = glosses
     graph.add_edges([(ID, other_ID) for (ID, other_ID, weight) in edges])
     graph.es['weight'] = [weight for ID, other_ID, weight in edges]
     graph.write_gml(output_file)
