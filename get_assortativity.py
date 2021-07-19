@@ -3,7 +3,9 @@ import pandas as pd
 import itertools
 import random as rd
 from generate_subgraph import get_subgraphs
-import compare_networks
+import evaluation
+
+import igraph
 
 w2v_path = "output/w2v/w2v.gml"
 CLICS_path = "input/CLICS/network-3-families.gml"
@@ -20,6 +22,12 @@ def get_assortativity(test_graph, gold_graph):
 
     a = test_graph.assortativity_nominal("corresponding community", directed=False)
     return(a)
+
+def get_symmetric_assortativity(test_graph, gold_graph):
+    ab = get_assortativity(test_graph, gold_graph)
+    ba = get_assortativity(gold_graph, test_graph)
+    assortativity = (ab + ba)/2
+    return(assortativity)
 
 def get_assortativity_table():
     clusters = list(range(1,5)) + ["..."]
@@ -45,9 +53,12 @@ if __name__ == "__main__":
     #print("Assortativity using CLICS community labels on w2v graph: " + str(a_CLICS_communities) + "\nAssortativity using w2v community labels on CLICS graph: " + str(a_w2v_communities))
     #get_assortativity_table()
     print("generating subgraphs...")
-    w2v, CLICS = get_subgraphs(w2v_path, CLICS_path)
+    w2v_graph = igraph.read(w2v_path)
+    CLICS_graph = igraph.read(CLICS_path)
+    w2v, CLICS = get_subgraphs(w2v_graph, CLICS_graph)
     print("cutting edges...")
-    w2v, CLICS = compare_networks.cut_edges(w2v, CLICS, "weight", "FamilyWeight")
+    w2v, CLICS = evaluation.cut_edges(w2v, CLICS, "weight", "FamilyWeight")
     print("getting assortativity coefficient...")
-    print(rand_dist(w2v, CLICS, R=100))
+    #print(rand_dist(w2v, CLICS, R=100))
+    print("symmetric measure:", get_symmetric_assortativity(w2v, CLICS))
 

@@ -1,6 +1,7 @@
 import igraph
+from generate_subgraph import get_subgraphs
 
-w2v_path = 'output/w2v/w2v_subgraph_clics.gml'
+EAT_path = 'output/EAT/EAT_graph.gml'
 CLICS_path = 'output/CLICS/clics_subgraph.gml'
 
 def get_adj_rand(test_graph, gold_graph):
@@ -23,4 +24,5 @@ def get_adj_rand(test_graph, gold_graph):
     return(adj_rand_coefficient)
 
 if __name__=="__main__":
+
     print(get_adj_rand(w2v_path,CLICS_path))

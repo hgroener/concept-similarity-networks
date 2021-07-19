@@ -68,6 +68,7 @@ def create_network(mappings, edges):
     glosses = [concept[1] for concept in concepts]
     g = igraph.Graph()
     g.add_vertices(IDs)
+    g.vs["ID"] = IDs
     g.vs["Gloss"] = glosses
     pure_edges = [e.split(":") for e in edges]
     weights = [edges[e][0] for e in edges]
@@ -88,6 +89,9 @@ def get_trn(csv, gml_path):
 
 
 if __name__=="__main__":
-    get_trn(trn_csv, trn_gml)
+    #get_trn(trn_csv, trn_gml)
+    trn = igraph.read(trn_gml)
+    print("nodes:", len(trn.vs))
+    print("edges:", len(trn.es))
 
 

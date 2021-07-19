@@ -11,7 +11,7 @@ from tqdm import tqdm
 mapped_concepts_path = "output/w2v/mapped_concepts.tsv"
 w2v_model = "output/w2v/w2v.model"
 edges = "output/w2v/edges.txt"
-output_path = "output/w2v/w2v.gml"
+output_path = "output/w2v/w2v_no_t.gml"
 threshold = 0.7
 
 def read_mappings(table):
