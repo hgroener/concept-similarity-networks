@@ -1,0 +1,6 @@
+,network,edges compared,Spearman Rank Coefficient,p-value
+0,w2v w2,185,0.1475,0.0441
+1,w2v w5,183,0.1736,0.0212
+2,CLICS,99,0.4717,0.0
+3,EAT,266,0.1804,0.0032
+4,sense,208,0.1893,0.0062

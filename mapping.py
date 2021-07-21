@@ -1,18 +1,11 @@
-from pysen.glosses import to_concepticon
+from pysem.glosses import to_concepticon
 from pyconcepticon import Concepticon
 import igraph
 con = Concepticon()
 
-clics_graph = igraph.read("input/CLICS/network-3-families.gml")
 tsv_path = 'output/w2v/mapped_concepts.tsv'
 vocab_path = 'output/w2v/model_vocab.txt'
 
-def get_concept_data(conceptlist):
-    clics_data = []
-    for concept in con.conceptlists[conceptlist].concepts.values():
-        if concept.concepticon_id in [concept["ID"] for concept in clics_graph.vs]:
-            clics_data += [[concept.concepticon_id, concept.concepticon_gloss, concept.attributes['community'], concept.attributes['weighted_family_degree'], concept.attributes['weighted_language_degree']]]
-    return(clics_data)
 
 def map_concepts(vocab_path):
     mapped_concepts = []
@@ -37,9 +30,7 @@ def compare_concepts(mapped, conceptlist_data):
     return(shared_concepts)
 
 def get_shared_concepts(vocab, output_tsv_path):
-    #clics_data = get_concept_data('Rzymski-2020-1624')
     shared_concepts = map_concepts(vocab)
-    #shared_concepts = compare_concepts(mapped_concepts, clics_data)
     with open(output_tsv_path, 'w') as f:
         f.write('\t'.join(
             [

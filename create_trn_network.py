@@ -1,5 +1,5 @@
 import pandas as pd
-from pysen.glosses import to_concepticon
+from pysem.glosses import to_concepticon
 from pyconcepticon import Concepticon
 import igraph
 
@@ -89,9 +89,6 @@ def get_trn(csv, gml_path):
 
 
 if __name__=="__main__":
-    #get_trn(trn_csv, trn_gml)
-    trn = igraph.read(trn_gml)
-    print("nodes:", len(trn.vs))
-    print("edges:", len(trn.es))
+    get_trn(trn_csv, trn_gml)
 
 

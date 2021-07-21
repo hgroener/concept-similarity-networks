@@ -1,21 +1,12 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[6]:
-
-
 import csv
 import re
 import gensim
-from gensim.models import KeyedVectors
-import nltk 
+import nltk
 from nltk.stem import WordNetLemmatizer 
 nltk.download('averaged_perceptron_tagger')
 nltk.download('wordnet')
 from nltk.corpus import wordnet
-from itertools import combinations
 from tqdm import tqdm
-from pathlib import Path
 import io
 import tarfile
 import os
@@ -23,17 +14,12 @@ import random as rd
 
 #corpora
 brown_corpus = 'input/Brown/brown.csv'
-google_zipped = "input/google_1b_words/1_b_words.tar.gz"
-google_news_corpus = "output/GoogleNews/1-billion-word-language-modeling-benchmark-r13output/training-monolingual.tokenized.shuffled"
+billion_words_zipped = "input/1b_words/1-billion-word-language-modeling-benchmark-r13output.tar.gz"
+billion_words_corpus = "output/1b_words/1-billion-word-language-modeling-benchmark-r13output/training-monolingual.tokenized.shuffled"
 
 #outputs
 vector_path = 'output/w2v/w2v.wordvectors'
 vocab_path = 'output/w2v/w2v_vocab.txt'
-
-#create model from pretrained google vectors
-Path("output/w2v/google").mkdir(parents=True, exist_ok=True)
-google_path = 'input/google_pretrained_w2v/word2vec-google-news-300.gz'
-google_vocab_path = 'output/w2v/google/google_vocab.txt'
 
 
 def pos_tagger(nltk_tag): 
@@ -83,9 +69,9 @@ def preproc_brown(filename, lemmatize=False):
     return(sents)
 
 
-def preproc_google_news(basepath, n = 10, alphabetic=False):
+def preproc_1_b_words(basepath, n = 10, alphabetic=False):
     sentences = []
-    print("reading and preprocessing google news files...")
+    print("reading and preprocessing files from 1 billion words corpus...")
     dir = os.listdir(basepath)
     rd.shuffle(dir)
     word_count = 0
@@ -97,14 +83,14 @@ def preproc_google_news(basepath, n = 10, alphabetic=False):
                     sent = [tok.lower() for tok in sent if re.match("^[a-zA-Z]+$",tok)]
                 word_count += len(sent)
                 sentences.append(sent)
-    print("size of Google news corpus: {0} sentences and {1} words".format(len(sentences), word_count))
+    print("size of subset of 1 billion words corpus: {0} sentences and {1} words".format(len(sentences), word_count))
     return(sentences)
 
 
-def build_model(brown_corpus, google_corpus,  vector_path, vocab_output_path, window_size=2):
+def build_model(brown_corpus, billion_word_corpus,  vector_path, vocab_output_path, window_size=2):
     brown_sents = preproc_brown(brown_corpus)
-    google_sents = preproc_google_news(google_corpus)
-    sents = brown_sents + google_sents
+    billion_word_sents = preproc_1_b_words(billion_word_corpus)
+    sents = brown_sents + billion_word_sents
     print("training Word2Vec model...")
     model = gensim.models.Word2Vec(sents, window=window_size, size=300, workers=6)
     wv = model.wv
@@ -126,11 +112,10 @@ def save_vocab(vocab, path):
 
 
 if __name__=="__main__":
-    if not os.path.isfile(google_news_corpus):
-        tar = tarfile.open(google_zipped, "r:gz")
-        tar.extractall(path="output/GoogleNews")
-    #build_model(brown_corpus, google_news_corpus, vector_path, vocab_path)
-    #build_model(google_path, google_vectors, google_vocab_path, google_vectors=True)
+    if not os.path.isfile(billion_words_corpus):
+        tar = tarfile.open(billion_words_zipped, "r:gz")
+        tar.extractall(path="output/1_b_words")
+    build_model(brown_corpus, billion_words_corpus, vector_path, vocab_path)
 
 
 

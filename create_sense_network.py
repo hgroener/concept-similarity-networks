@@ -3,11 +3,14 @@ from pynorare import NoRaRe
 import itertools
 from tqdm import tqdm
 
+# creates SENSE network from NoRaRe data
 norare = NoRaRe("input/NoRaRe/norare-data")
 sense = norare.datasets["Starostin-2000-Sense"]
 output_file = 'output/sense/sense.gml'
 
 
+# reads concepts mapped to SENSE from NoRaRe, creates edges based on the intersection of semantic constituents between concepts
+#outputs Concepticon IDs, Glosses and edges, which are a list of tuples containing the IDs of the concepts that are connected and the weight of the edge
 def convert_sense(sense):
     cids = []
     concept_list = []
@@ -25,12 +28,12 @@ def convert_sense(sense):
 
         intersection_len = len(sense_intersection)
         if intersection_len > 0:
-            #print("intersection btw", concept["concepticon_gloss"], "and", other_concept["concepticon_gloss"], ":",sense_intersection)
             edges.append((str(concept["concepticon_id"]), str(other_concept["concepticon_id"]), intersection_len))
 
 
     return((cids, glosses, edges))
 
+#creates igraph network, saves it to .gml-file
 def build_network(sense, output_file):
     cids, glosses, edges = convert_sense(sense)
     graph = igraph.Graph()

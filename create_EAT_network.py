@@ -1,14 +1,14 @@
 from pynorare import NoRaRe
 from tqdm import tqdm
-from pysen.glosses import to_concepticon
+from pysem.glosses import to_concepticon
 import igraph
 import re
-import itertools
 
 norare = NoRaRe("input/NoRaRe/norare-data")
 EAT = norare.datasets["Kiss-1973-EAT"]
 output_file = 'output/EAT/EAT_graph.gml'
 
+#collects IDs and glosses of concepts words in the EAT were mapped to, maps unmapped words, returns tuples representing edges
 def convert_EAT(EAT):
     cids = []
     concept_list = []
@@ -47,6 +47,7 @@ def convert_EAT(EAT):
     print("edges that couldn't be mapped:", failed_mappings)
     return((cids, glosses, edges))
 
+#builds igraph network, saves to .gml-file
 def build_network(EAT, output_file):
     cids, glosses, edges = convert_EAT(EAT)
     EAT_graph = igraph.Graph()
@@ -58,13 +59,8 @@ def build_network(EAT, output_file):
     EAT_graph.write_gml(output_file)
     return(print("EAT network successfully built and saved to " + output_file))
 
-def get_density(graph):
-    possible_edge_len = len(list(itertools.combinations(graph.vs, 2)))
-    edge_len = len(graph.es)
-    density = edge_len/possible_edge_len
-    return(density)
+
 
 if __name__=="__main__":
     build_network(EAT, output_file)
-    EAT_graph = igraph.read(output_file)
-    print("network density: ", get_density(EAT_graph))
+

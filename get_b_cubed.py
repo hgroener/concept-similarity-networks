@@ -1,7 +1,7 @@
 import igraph
 
-w2v_path = "output/w2v/t_networks_clics/w2v_t96.gml"
-CLICS_path = "output/CLICS/clics_subgraph.gml"
+EAT_path = "output/EAT/EAT_graph.gml"
+CLICS_path = "input/CLICS/network-3-families.gml"
 
 def coms_sgraphs(graph):
     coms = graph.community_infomap()
@@ -38,4 +38,6 @@ def get_b_cubed(test_graph, gold_graph):
 
 
 if __name__=="__main__":
-    print(get_b_cubed(w2v_path, CLICS_path))
+    EAT = igraph.read(EAT_path)
+    CLICS = igraph.rad(CLICS_path)
+    print(get_b_cubed(EAT, CLICS))
