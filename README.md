@@ -1,25 +1,17 @@
-# concept similarity networks
+## Quantitative Concept Similarity: Comparing Similarities Derived from Word Embeddings to Similarities Derived from Cross-Linguistic Data
 
-## Schritte zur Erstellung des Word2Vec-Netzwerks
-- Textkorpus: Brown University Standard Corpus of Present-Day American English: https://www.kaggle.com/nltkdata/brown-corpus?select=cats.csv
-- Preprocessing, Tokenisierung, Lemmatisierung
-- Word2Vec-Modell auf vorverarbeitetem, tokenisiertem Text trainieren
-- Liste von Worttypen extrahieren (etwa 50 000) 
-- Worttypen mit pynorare auf Konzepte in Konzepteliste mappen
-- cosine similiarity scores zwischen Vektoren, die gemappte Worttypen repräsentieren, berechnen
-- Schwelle definieren (etwa 0,5) 
-- 1000 Konzepte mit meisten Verbindungen über Schwellenwert extrahieren(?)
-- graphische Darstellung des Netzwerks: Kanten werden nur zwischen Konzeptknoten angezeigt, deren semantische Ähnlichkeit den Schwellenwert übersteigt. (cytoscape/gephi/networkx/python-igraph) 
+# README 
 
-## Vergleich von Ählichkeitsnetzwerken
-- Literatur: List(2019): beyond edit distances; List(2017): Old Chinese Vowel Purity -> Partitionierungsanalyse
-- Connected Components: 
-  - Communities verbundener Knoten in Netzwerk
-  - Infomap-Algorithmus: Labeling der Connected Components (etwa Konzept "GET" in Community "TAKE")
-    
-## Fragen
-- Umgang mit pynorare, pyconcepticon, pyclics
-- wie viele und welche Ähnlichkeitsnetzwerke sollten verglichen werden? Nur gewichtete (pyclics, word2vec, evtl. Netzwerk aus Assoziationsstudien in NoRaRe) oder auch ungewichtete (Wordnet, Concepticon)
-- Reicht pynorare für das Konzeptmapping, oder sollte für das Mapping bei Kolexifikationen ein Klassifikator eingesetzt werden?
+Necessary steps before running the code: 
 
+1. Run prereqs.py to create file structure for input and output files 
+2. Install pysem from https://github.com/lingpy/pysem
+3. Download CLICS .gml-file from https://github.com/clics/clics3/blob/master/clics3-network.gml.zip and unpack it into input/CLICS
+4. Clone NoRaRe repository into input/NoRaRe with "git clone https://github.com/concepticon/norare-data"
+5. Download Brown corpus from https://www.kaggle.com/nltkdata/brown-corpus?select=brown.csv and extract it into input/Brown
+6. Download 1 billion word corpus from http://www.statmt.org/lm-benchmark/1-billion-word-language-modeling-benchmark-r13output.tar.gz, move it to input/1b_words
+7. download thematic relatedness norms from https://static-content.springer.com/esm/art%3A10.3758%2Fs13428-015-0679-8/MediaObjects/13428_2015_679_MOESM3_ESM.xlsx, place the file into input/trn
+8. add imgkit to Path variable to run visualization.py and export styled tables 
+
+To start the creation and comparison of networks, run main.py. Change the boolean values of "overwrite" and "compare" variables to toggle overwriting and comparing networks.
 
