@@ -6,9 +6,10 @@ import create_sense_network
 import create_simlex_network
 import evaluation
 import create_trn_network
+
+
 import os
 import tarfile
-
 from pathlib import Path
 from pynorare import NoRaRe
 import pandas as pd
@@ -93,6 +94,7 @@ compare_MultiSimLex_eng = False
 #thematic relatedness norms
 compare_trn= False
 overwrite_trn = False
+trn_xlsx = "input/thematic_relatedness/13428_2015_679_MOESM3_ESM.xlsx"
 trn_csv = "input/thematic_relatedness/trn.csv"
 trn_gml = "output/thematic_relatedness/trn.gml"
 trn_eval_csv = "evalution/trn_eval.csv"
@@ -241,7 +243,7 @@ def get_highest_weight(models, path):
 
     df = pd.DataFrame(top10s)
     df.to_csv(path, index=False)
-    return(print("highest rated pairs in all networks save to", path))
+    return(print("highest rated pairs in all networks saved to", path))
 
 def get_rank_dif_df(results, output):
     d = {dic["model 1"] + " : "  + dic["model 2"]: dic["most differently rated pairs"] for dic in results}
@@ -256,12 +258,20 @@ if __name__=="__main__":
     if not os.path.isfile(billion_words_corpus):
         tar = tarfile.open(billion_words_zipped, "r:gz")
         tar.extractall(path="output/1b_words")
+
+    #convert thematic relatedness norms file to .csv-format
+    if not os.path.isfile(trn_csv):
+        trn_data = pd.read_excel(trn_xlsx, index_col=None)
+        trn_data.to_csv(trn_csv, encoding='utf-8')
+        print("trn data successfully converted to .csv-file")
+
     #create w2v network w2
     get_w2v(brown_corpus_path,billion_words_corpus, vector_path, vocab_path, mapped_concepts_path, edges_path,
             w2v_gml_path, window_size = 2, overwrite_model=overwrite_model, overwrite_gml=overwrite_w2v)
     #create w2v network w5
     get_w2v(brown_corpus_path,billion_words_corpus, vector_path_w5, vocab_path, mapped_concepts_path, edges_path_w5,
             w2v_gml_path_w5, window_size = 5, overwrite_model=overwrite_model_w5, overwrite_gml=overwrite_w2v_w5)
+
     #create EAT network
     if not Path(EAT_path).is_file():
         create_EAT_network.build_network(EAT, EAT_path)
