@@ -94,7 +94,7 @@ compare_MultiSimLex_eng = False
 #thematic relatedness norms
 compare_trn= False
 overwrite_trn = False
-trn_xlsx = "input/thematic_relatedness/13428_2015_679_MOESM3_ESM.xlsx"
+trn_xlsx = "input/thematic_relatedness/13428_2015_679_MOESM2_ESM.xlsx"
 trn_csv = "input/thematic_relatedness/trn.csv"
 trn_gml = "output/thematic_relatedness/trn.gml"
 trn_eval_csv = "evalution/trn_eval.csv"
@@ -264,6 +264,7 @@ if __name__=="__main__":
         trn_data = pd.read_excel(trn_xlsx, index_col=None)
         trn_data.to_csv(trn_csv, encoding='utf-8')
         print("trn data successfully converted to .csv-file")
+
 
     #create w2v network w2
     get_w2v(brown_corpus_path,billion_words_corpus, vector_path, vocab_path, mapped_concepts_path, edges_path,
